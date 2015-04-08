@@ -1,55 +1,117 @@
 package alexiil.mods.load;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-
-import javax.imageio.ImageIO;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.DefaultResourcePack;
+import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 
 import org.lwjgl.opengl.GL11;
 
 import alexiil.mods.load.ProgressDisplayer.IDisplayer;
 
-import com.google.common.base.Throwables;
-
 public class MinecraftDisplayer implements IDisplayer {
-    private static final ResourceLocation locationMojangPng = new ResourceLocation("textures/gui/title/mojang.png");
-    private static final ResourceLocation locationBetterLoadingScreen = new ResourceLocation("betterLoadingScreen:textures/gui/screen.png");
+    private ResourceLocation locationMojangPng = new ResourceLocation("textures/gui/title/mojang.png");
+    private ResourceLocation locationProgressBar = new ResourceLocation("betterloadingscreen/textures/progressBars.png");
     private TextureManager textureManager = null;
-    private ResourceLocation mojangPng = null;
     private FontRenderer fontRenderer = null;
     private ScaledResolution resolution = null;
     private Framebuffer framebuffer = null;
+    private Minecraft mc = null;
+    private boolean callAgain = false;
+    private double startTexLocation = 74;
 
     // Minecraft's display hasn't been created yet, so don't bother trying
     // to do anything now
     @Override
-    public void open() {}
+    public void open(Configuration cfg) {
+        String comment =
+                "The type of progress bar to display. Use either 0, 1 or 2. (0 is the experiance bar, 1 is the boss health bar, and 2 is the horse jump bar)";
+        Property prop = cfg.get("general", "progressType", 1, comment, 0, 2);
+        startTexLocation = prop.getInt() * 10;
+
+        comment =
+                "The location of the progress bar. You can chnage this to a different one, or a different resource pack. Note that this WILL crash minecraft, or not work if this is set incorrectly";
+        prop = cfg.get("general", "progressBarLocation", "betterloadingscreen:textures/progressBars.png", comment);
+        locationProgressBar = new ResourceLocation(prop.getString());
+    }
 
     @Override
     public void displayProgress(String text, float percent) {
-        System.out.println(text + "|" + percent);
+        // if (Minecraft.getMinecraft().renderEngine == null)
+        // return;
+        mc = Minecraft.getMinecraft();
+        resolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+
         preDisplayScreen();
-        fontRenderer.drawString(text, 10, (int) percent * 10, 0);
+        float sf = resolution.getScaleFactor();
+        GL11.glScalef(sf, sf, sf);
+
+        int centerX = resolution.getScaledWidth() / 2;
+        int centerY = resolution.getScaledHeight() / 2;
+
+        drawCenteredString(text, centerX, centerY + 30);
+        drawCenteredString((int) (percent * 100) + "%", centerX, centerY + 40);
+
+        GL11.glColor4f(1, 1, 1, 1);
+
+        textureManager.bindTexture(locationProgressBar);
+
+        double texWidth = 182;
+        double startX = centerX - texWidth / 2;
+        drawTexturedModalRect(startX, centerY + 50, 0, startTexLocation, texWidth, 5);
+        drawTexturedModalRect(startX, centerY + 50, 0, startTexLocation + 5, percent * texWidth, 5);
+
+        sf = 1 / sf;
+        GL11.glScalef(sf, sf, sf);
         postDisplayScreen();
+        if (callAgain) {
+            // For some reason, calling this again makes pre-init render properly. I have no idea why, it just does
+            callAgain = false;
+            displayProgress(text, percent);
+        }
+    }
+
+    // Taken from net.minecraft.client.gui.Gui
+    public void drawTexturedModalRect(double x, double y, double u, double z, double width, double height) {
+        float f = 0.00390625F;
+        float f1 = 0.00390625F;
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV(x, y + height, 0, u * f, (z + height) * f1);
+        tessellator.addVertexWithUV(x + width, y + height, 0, (u + width) * f, (z + height) * f1);
+        tessellator.addVertexWithUV(x + width, y, 0, (u + width) * f, z * f1);
+        tessellator.addVertexWithUV(x, y, 0, u * f, z * f1);
+        tessellator.draw();
+    }
+
+    private void drawCenteredString(String string, int xCenter, int yPos) {
+        int width = fontRenderer.getStringWidth(string);
+        fontRenderer.drawString(string, xCenter - width / 2, yPos, 0);
     }
 
     private void preDisplayScreen() {
-        Minecraft mc = Minecraft.getMinecraft();
         if (textureManager == null) {
             textureManager = mc.renderEngine = new TextureManager(mc.getResourceManager());
-            fontRenderer = new FontRenderer(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), textureManager, false);
-            mc.fontRenderer = fontRenderer;
+
+            mc.fontRenderer = new FontRenderer(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), textureManager, false);
+            if (mc.gameSettings.language != null) {
+                mc.fontRenderer.setUnicodeFlag(mc.func_152349_b());
+                LanguageManager lm = mc.getLanguageManager();
+                mc.fontRenderer.setBidiFlag(lm.isCurrentLanguageBidirectional());
+            }
+            mc.fontRenderer.onResourceManagerReload(mc.getResourceManager());
+            callAgain = true;
         }
+        if (fontRenderer != mc.fontRenderer)
+            fontRenderer = mc.fontRenderer;
+        if (textureManager != mc.renderEngine)
+            textureManager = mc.renderEngine;
         resolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
         int i = resolution.getScaleFactor();
         framebuffer = new Framebuffer(resolution.getScaledWidth() * i, resolution.getScaledHeight() * i, true);
@@ -65,15 +127,8 @@ public class MinecraftDisplayer implements IDisplayer {
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
 
-        try {
-            DefaultResourcePack drp = getMinecraftField("mcDefaultResourcePack");
-            DynamicTexture tex = new DynamicTexture(ImageIO.read(drp.getInputStream(locationMojangPng)));
-            mojangPng = textureManager.getDynamicTextureLocation("logo", tex);
-            textureManager.bindTexture(mojangPng);
-        }
-        catch (IOException ioexception) {
-            // logger.error("Unable to load logo: " + locationMojangPng, ioexception);
-        }
+        // This also means that you can override the mojang image :P
+        textureManager.bindTexture(locationMojangPng);
 
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();
@@ -96,27 +151,10 @@ public class MinecraftDisplayer implements IDisplayer {
     }
 
     private void postDisplayScreen() {
-        Minecraft mc = Minecraft.getMinecraft();
-        Tessellator tessellator = Tessellator.instance;
-        int i = resolution.getScaleFactor();
-
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
         GL11.glFlush();
         mc.func_147120_f();
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> T getMinecraftField(String name) {
-        try {
-            Field fld = Minecraft.class.getDeclaredField(name);
-            fld.setAccessible(true);
-            return (T) fld.get(Minecraft.getMinecraft());
-        }
-        catch (Throwable t) {
-            Throwables.propagate(t);
-        }
-        return null;
     }
 
     @Override

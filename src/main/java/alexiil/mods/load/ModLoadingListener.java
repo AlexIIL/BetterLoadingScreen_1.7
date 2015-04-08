@@ -81,8 +81,6 @@ public class ModLoadingListener {
 
     private static List<ModLoadingListener> listeners = new ArrayList<ModLoadingListener>();
     private static ModStage stage = null;
-    private static LoadingFrame frame = null;
-    private static boolean hasFailed = false;
 
     private final ModContainer mod;
 
@@ -130,9 +128,13 @@ public class ModLoadingListener {
                 stage = new ModStage(state, 0);
             else
                 stage = new ModStage(state, listeners.indexOf(mod));
+        String text = stage.getDisplayText();
+        float percent = stage.getProgress() / 100F;
         stage = stage.getNext();
-        if (stage != null) {
-            ProgressDisplayer.displayProgress(stage.getDisplayText(), stage.getProgress() / 100F);
+        if (stage.state == State.FINAL_LOADING) {
+            text = stage.getDisplayText();
+            percent = stage.getProgress() / 100F;
         }
+        ProgressDisplayer.displayProgress(text, percent);
     }
 }

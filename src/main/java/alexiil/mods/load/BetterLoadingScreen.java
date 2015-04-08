@@ -13,10 +13,6 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.event.FMLConstructionEvent;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLStateEvent;
 
 @Mod(modid = Lib.Mod.ID)
 public class BetterLoadingScreen {
@@ -47,31 +43,4 @@ public class BetterLoadingScreen {
             }
         }
     }
-/*
-    @EventHandler
-    public void pre(FMLPreInitializationEvent event) {
-        onState(event);
-    }
-
-    @EventHandler
-    public void init(FMLInitializationEvent event) {
-        onState(event);
-    }
-
-    @EventHandler
-    public void post(FMLPostInitializationEvent event) {
-        onState(event);
-    }
-
-    private void onState(FMLStateEvent event) {
-        if (log == null)
-            return;
-        log.info(event.getClass() + "| Sleeping for 10 seconds");
-        try {
-            Thread.sleep(10000);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }*/
 }
