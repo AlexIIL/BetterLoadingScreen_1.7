@@ -1,14 +1,14 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "betterloadingscreen",
+  "name": "Better Loading Screen",
+  "description": "A better loading screen that shows you the status of minecraft's loading time",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
+  "authorList": ["AlexIIL"],
+  "credits": "",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
