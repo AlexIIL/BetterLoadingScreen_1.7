@@ -110,6 +110,7 @@ public class LoadingFrame extends JFrame {
         panel_1.setLayout(new BorderLayout(0, 0));
 
         progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
         panel_1.add(progressBar, BorderLayout.NORTH);
     }
 
