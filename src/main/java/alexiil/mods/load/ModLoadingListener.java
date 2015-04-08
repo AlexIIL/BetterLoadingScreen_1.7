@@ -15,7 +15,10 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class ModLoadingListener {
     private enum State {
@@ -114,12 +117,6 @@ public class ModLoadingListener {
     @Subscribe
     public void loadComplete(FMLLoadCompleteEvent event) {
         doProgress(State.LOAD_COMPLETE, this);
-    }
-
-    @SubscribeEvent
-    public void guiOpen(GuiOpenEvent event) {
-        if (event.gui != null && event.gui instanceof GuiMainMenu)
-            ProgressDisplayer.close();
     }
 
     private static void doProgress(State state, ModLoadingListener mod) {

@@ -64,11 +64,24 @@ public class ProgressDisplayer {
 
     private static IDisplayer displayer;
 
+    private static boolean isClient() {
+        try {
+            Class.forName("cpw.mods.fml.client.FMLClientHandler");
+            return true;
+        }
+        catch (Throwable t) {}
+        return false;
+    }
+
     public static void start() {
-        String comment = "Whether or not to use minecraft's display to show the progress. This looks better, but there is a possibilty of not being ";
-        comment += "compatible, so if you do have nay strange crash reports or compatability issues, try setting this to false";
+        boolean useMinecraft = isClient();
         Configuration cfg = new Configuration(new File("./config/betterloadingscreen.cfg"));
-        boolean useMinecraft = cfg.getBoolean("useMinecraft", "general", true, comment);
+        if (useMinecraft) {
+            String comment =
+                    "Whether or not to use minecraft's display to show the progress. This looks better, but there is a possibilty of not being ";
+            comment += "compatible, so if you do have nay strange crash reports or compatability issues, try setting this to false";
+            useMinecraft = cfg.getBoolean("useMinecraft", "general", true, comment);
+        }
         if (useMinecraft)
             displayer = new MinecraftDisplayerWrapper();
         else if (!GraphicsEnvironment.isHeadless())
