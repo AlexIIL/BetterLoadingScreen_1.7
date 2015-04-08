@@ -67,6 +67,6 @@ jar
 	manifest
 	{
 		attributes 'FMLCorePluginContainsFMLMod': 'true'
-		attributes 'FMLCorePlugin': 'alexiil.mods.load.coremod.LodingScreenLoadPlugin'
+		attributes 'FMLCorePlugin': 'alexiil.mods.load.coremod.LoadingScreenLoadPlugin'
 	}
 }
