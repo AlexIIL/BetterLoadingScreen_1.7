@@ -25,6 +25,8 @@ public class MinecraftDisplayer implements IDisplayer {
     private Minecraft mc = null;
     private boolean callAgain = false;
     private double startTexLocation = 64;
+    private int startTextLocation = 30;
+    private int startBarLocation = 40;
 
     // Minecraft's display hasn't been created yet, so don't bother trying
     // to do anything now
@@ -34,6 +36,16 @@ public class MinecraftDisplayer implements IDisplayer {
                 "The type of progress bar to display. Use either 0, 1 or 2. (0 is the experiance bar, 1 is the boss health bar, and 2 is the horse jump bar)";
         Property prop = cfg.get("general", "progressType", 1, comment, 0, 2);
         startTexLocation = prop.getInt() * 10 + 64;
+
+        String comment2 =
+                "The yPosition of the text, added to the centre (so, a value of 0 means its right in the middle of the screen, and negative numbers are higher up the screen). Default is 30";
+        prop = cfg.get("general", "yPosText", 30, comment2, -500, 500);
+        startTextLocation = prop.getInt();
+
+        String comment3 =
+                "The yPosition of the bar, added to the centre (so, a value of 0 means its right in the middle of the screen, and negative numbers are higher up the screen). Default is 40";
+        prop = cfg.get("general", "yPosBar", 50, comment3, -500, 500);
+        startBarLocation = prop.getInt();
     }
 
     @Override
@@ -50,8 +62,8 @@ public class MinecraftDisplayer implements IDisplayer {
         int centerX = resolution.getScaledWidth() / 2;
         int centerY = resolution.getScaledHeight() / 2;
 
-        drawCenteredString(text, centerX, centerY + 30);
-        drawCenteredString((int) (percent * 100) + "%", centerX, centerY + 40);
+        drawCenteredString(text, centerX, centerY + startTextLocation);
+        drawCenteredString((int) (percent * 100) + "%", centerX, centerY + startTextLocation + 10);
 
         GL11.glColor4f(1, 1, 1, 1);
 
@@ -59,8 +71,8 @@ public class MinecraftDisplayer implements IDisplayer {
 
         double texWidth = 182;
         double startX = centerX - texWidth / 2;
-        drawTexturedModalRect(startX, centerY + 50, 0, startTexLocation, texWidth, 5);
-        drawTexturedModalRect(startX, centerY + 50, 0, startTexLocation + 5, percent * texWidth, 5);
+        drawTexturedModalRect(startX, centerY + startBarLocation, 0, startTexLocation, texWidth, 5);
+        drawTexturedModalRect(startX, centerY + startBarLocation, 0, startTexLocation + 5, percent * texWidth, 5);
 
         sf = 1 / sf;
         GL11.glScalef(sf, sf, sf);
