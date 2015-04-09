@@ -65,12 +65,12 @@ public class ProgressDisplayer {
     private static IDisplayer displayer;
 
     private static boolean isClient() {
-        try {
-            Class.forName("cpw.mods.fml.client.FMLClientHandler");
-            return true;
+        StackTraceElement[] steArr = Thread.currentThread().getStackTrace();
+        for (StackTraceElement ste : steArr) {
+            if (ste.getClassName().startsWith("cpw.mods.fml.relauncher.ServerLaunchWrapper"))
+                return false;
         }
-        catch (Throwable t) {}
-        return false;
+        return true;
     }
 
     public static void start() {

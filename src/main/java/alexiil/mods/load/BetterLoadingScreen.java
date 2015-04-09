@@ -6,8 +6,6 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 
-import org.apache.logging.log4j.LogManager;
-
 import com.google.common.eventbus.EventBus;
 
 import cpw.mods.fml.common.FMLModContainer;
@@ -28,11 +26,8 @@ public class BetterLoadingScreen {
     @Instance(Lib.Mod.ID)
     public static BetterLoadingScreen instance;
 
-    private org.apache.logging.log4j.Logger log = null;
-
     @EventHandler
     public void construct(FMLConstructionEvent event) {
-        log = LogManager.getLogger(Lib.Mod.ID);
         for (ModContainer mod : Loader.instance().getActiveModList()) {
             if (mod instanceof FMLModContainer) {
                 EventBus bus = null;

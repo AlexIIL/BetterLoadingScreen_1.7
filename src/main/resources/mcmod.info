@@ -9,7 +9,7 @@
   "updateUrl": "",
   "authorList": ["AlexIIL"],
   "credits": "",
-  "logoFile": "",
+  "logoFile": "assets/betterloadingscreen/textures/logo.png",
   "screenshots": [],
   "dependencies": []
 }
