@@ -3,8 +3,6 @@ package alexiil.mods.load;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.google.common.eventbus.Subscribe;
@@ -15,13 +13,9 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ModLoadingListener {
-    private enum State {
+    public enum State {
         CONSTRUCT("Construction"), PRE_INIT("Pre Initialization"), INIT("Initialization"), POST_INIT("Post Initialization"), LOAD_COMPLETE(
                 "Completed"), FINAL_LOADING("Reloading Resource Packs", true);
 
@@ -119,7 +113,7 @@ public class ModLoadingListener {
         doProgress(State.LOAD_COMPLETE, this);
     }
 
-    private static void doProgress(State state, ModLoadingListener mod) {
+    public static void doProgress(State state, ModLoadingListener mod) {
         if (stage == null)
             if (mod == null)
                 stage = new ModStage(state, 0);

@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import alexiil.mods.load.ModLoadingListener.State;
 
 import com.google.common.eventbus.EventBus;
 
@@ -28,6 +29,7 @@ public class BetterLoadingScreen {
 
     @EventHandler
     public void construct(FMLConstructionEvent event) {
+        ModLoadingListener thisListener = null;
         for (ModContainer mod : Loader.instance().getActiveModList()) {
             if (mod instanceof FMLModContainer) {
                 EventBus bus = null;
@@ -42,10 +44,17 @@ public class BetterLoadingScreen {
                     t.printStackTrace();
                 }
                 if (bus != null) {
-                    bus.register(new ModLoadingListener(mod));
+                    if (mod.getModId().equals(Lib.Mod.ID)) {
+                        thisListener = new ModLoadingListener(mod);
+                        bus.register(thisListener);
+                    }
+                    else
+                        bus.register(new ModLoadingListener(mod));
                 }
             }
         }
+        if (thisListener != null)
+            ModLoadingListener.doProgress(State.CONSTRUCT, thisListener);
     }
 
     @EventHandler

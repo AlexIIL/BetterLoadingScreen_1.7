@@ -102,4 +102,8 @@ public class ProgressDisplayer {
         displayer.close();
         displayer = null;
     }
+
+    public static void minecraftDisplayFirstProgress() {
+        displayProgress("Minecraft Initialization", 0.02F);
+    }
 }

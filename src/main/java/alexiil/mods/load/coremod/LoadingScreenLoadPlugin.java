@@ -6,16 +6,17 @@ import alexiil.mods.load.ProgressDisplayer;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
+@IFMLLoadingPlugin.TransformerExclusions({ "alexiil.mods.load.coremod" })
+@IFMLLoadingPlugin.SortingIndex(Integer.MAX_VALUE - 80)
+// A big number
 public class LoadingScreenLoadPlugin implements cpw.mods.fml.relauncher.IFMLLoadingPlugin {
-    // The only reason this coremod exists is this static method: its the first
-    // time our code is called
     static {
         ProgressDisplayer.start();
     }
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[0];
+        return new String[] { "alexiil.mods.load.coremod.BetterLoadingScreenTransformer" };
     }
 
     @Override

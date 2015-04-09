@@ -17,14 +17,14 @@ import alexiil.mods.load.ProgressDisplayer.IDisplayer;
 
 public class MinecraftDisplayer implements IDisplayer {
     private ResourceLocation locationMojangPng = new ResourceLocation("textures/gui/title/mojang.png");
-    private ResourceLocation locationProgressBar = new ResourceLocation("betterloadingscreen/textures/progressBars.png");
+    private ResourceLocation locationProgressBar = new ResourceLocation("textures/gui/icons.png");
     private TextureManager textureManager = null;
     private FontRenderer fontRenderer = null;
     private ScaledResolution resolution = null;
     private Framebuffer framebuffer = null;
     private Minecraft mc = null;
     private boolean callAgain = false;
-    private double startTexLocation = 74;
+    private double startTexLocation = 64;
 
     // Minecraft's display hasn't been created yet, so don't bother trying
     // to do anything now
@@ -33,12 +33,7 @@ public class MinecraftDisplayer implements IDisplayer {
         String comment =
                 "The type of progress bar to display. Use either 0, 1 or 2. (0 is the experiance bar, 1 is the boss health bar, and 2 is the horse jump bar)";
         Property prop = cfg.get("general", "progressType", 1, comment, 0, 2);
-        startTexLocation = prop.getInt() * 10;
-
-        comment =
-                "The location of the progress bar. You can chnage this to a different one, or a different resource pack. Note that this WILL crash minecraft, or not work if this is set incorrectly";
-        prop = cfg.get("general", "progressBarLocation", "betterloadingscreen:textures/progressBars.png", comment);
-        locationProgressBar = new ResourceLocation(prop.getString());
+        startTexLocation = prop.getInt() * 10 + 64;
     }
 
     @Override
@@ -98,7 +93,8 @@ public class MinecraftDisplayer implements IDisplayer {
     private void preDisplayScreen() {
         if (textureManager == null) {
             textureManager = mc.renderEngine = new TextureManager(mc.getResourceManager());
-
+            mc.refreshResources();
+            textureManager.onResourceManagerReload(mc.getResourceManager());
             mc.fontRenderer = new FontRenderer(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), textureManager, false);
             if (mc.gameSettings.language != null) {
                 mc.fontRenderer.setUnicodeFlag(mc.func_152349_b());
