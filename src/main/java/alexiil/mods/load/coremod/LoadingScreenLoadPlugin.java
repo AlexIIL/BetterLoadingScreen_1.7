@@ -1,8 +1,10 @@
 package alexiil.mods.load.coremod;
 
+import java.io.File;
 import java.util.Map;
 
 import alexiil.mods.load.ProgressDisplayer;
+import alexiil.mods.load.Translation;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
@@ -30,7 +32,9 @@ public class LoadingScreenLoadPlugin implements cpw.mods.fml.relauncher.IFMLLoad
     }
 
     @Override
-    public void injectData(Map<String, Object> data) {}
+    public void injectData(Map<String, Object> data) {
+        Translation.addTranslations((File) data.get("coremodLocation"));
+    }
 
     @Override
     public String getAccessTransformerClass() {

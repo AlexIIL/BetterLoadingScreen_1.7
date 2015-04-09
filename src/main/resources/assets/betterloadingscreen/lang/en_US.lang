@@ -1,0 +1,7 @@
+betterloadingscreen.state.minecraft_init=Minecraft Initializing
+betterloadingscreen.state.construction=Construction
+betterloadingscreen.state.prei_initialization=Pre Initialization
+betterloadingscreen.state.initialization=Initialization
+betterloadingscreen.state.post_initialization=Post Initialization
+betterloadingscreen.state.completed=Completed
+betterloadingscreen.state.reloading_resource_packs=Reloading Resource Packs

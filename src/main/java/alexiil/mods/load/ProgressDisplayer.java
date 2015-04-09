@@ -63,13 +63,19 @@ public class ProgressDisplayer {
     }
 
     private static IDisplayer displayer;
+    private static int clientState = -1;
 
-    private static boolean isClient() {
+    public static boolean isClient() {
+        if (clientState != -1)
+            return clientState == 1;
         StackTraceElement[] steArr = Thread.currentThread().getStackTrace();
         for (StackTraceElement ste : steArr) {
-            if (ste.getClassName().startsWith("cpw.mods.fml.relauncher.ServerLaunchWrapper"))
+            if (ste.getClassName().startsWith("cpw.mods.fml.relauncher.ServerLaunchWrapper")) {
+                clientState = 0;
                 return false;
+            }
         }
+        clientState = 1;
         return true;
     }
 
@@ -104,6 +110,6 @@ public class ProgressDisplayer {
     }
 
     public static void minecraftDisplayFirstProgress() {
-        displayProgress("Minecraft Initialization", 0.02F);
+        displayProgress(Translation.translate("minecraft_init", "Minecraft Initializing"), 0.02F);
     }
 }

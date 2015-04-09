@@ -16,20 +16,31 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class ModLoadingListener {
     public enum State {
-        CONSTRUCT("Construction"), PRE_INIT("Pre Initialization"), INIT("Initialization"), POST_INIT("Post Initialization"), LOAD_COMPLETE(
-                "Completed"), FINAL_LOADING("Reloading Resource Packs", true);
+        CONSTRUCT("construction"), PRE_INIT("pre_initialization"), INIT("initialization"), POST_INIT("post_initialization"), LOAD_COMPLETE(
+                "completed"), FINAL_LOADING("reloading_resource_packs", true);
 
-        final String displayName;
+        final String translatedName;
         /** If this state is only called once. This is false for all except for FINAL_LOADING */
         final boolean isLoneState;
 
         State(String name, boolean mods) {
-            displayName = name;
             isLoneState = mods;
+            String failure = name.replaceAll("\\_", " ");
+            String[] split = failure.split(" ");
+            failure = "";
+            for (int i = 0; i < split.length; i++) {
+                failure += i == 0 ? "" : " ";
+                failure += split[i].substring(0, 1).toUpperCase().concat(split[i].substring(1));
+            }
+            translatedName = Translation.translate(name, failure);
         }
 
         State(String name) {
             this(name, false);
+        }
+
+        public String translate() {
+            return translatedName;
         }
     }
 
@@ -63,8 +74,8 @@ public class ModLoadingListener {
 
         public String getDisplayText() {
             if (state.isLoneState)
-                return state.displayName;
-            return state.displayName + ": loading " + listeners.get(index).mod.getName();
+                return state.translate();
+            return state.translate() + ": loading " + listeners.get(index).mod.getName();
         }
 
         public int getProgress() {
