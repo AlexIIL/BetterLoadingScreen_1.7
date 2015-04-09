@@ -3,6 +3,12 @@ package alexiil.mods.load;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SoundEventAccessorComposite;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 
 import org.apache.logging.log4j.LogManager;
@@ -64,6 +70,8 @@ public class ProgressDisplayer {
 
     private static IDisplayer displayer;
     private static int clientState = -1;
+    private static String sound;
+    private static String defaultSound = "random.levelup";
 
     public static boolean isClient() {
         if (clientState != -1)
@@ -87,7 +95,11 @@ public class ProgressDisplayer {
                     "Whether or not to use minecraft's display to show the progress. This looks better, but there is a possibilty of not being ";
             comment += "compatible, so if you do have nay strange crash reports or compatability issues, try setting this to false";
             useMinecraft = cfg.getBoolean("useMinecraft", "general", true, comment);
+
+            comment = "What sound to play when loading is complete. Default is the dispenser open (" + defaultSound + ")";
+            sound = cfg.getString("sound", "general", defaultSound, comment);
         }
+
         if (useMinecraft)
             displayer = new MinecraftDisplayerWrapper();
         else if (!GraphicsEnvironment.isHeadless())
@@ -107,9 +119,38 @@ public class ProgressDisplayer {
             return;
         displayer.close();
         displayer = null;
+        if (isClient()) {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(500);
+                    }
+                    catch (InterruptedException e) {}
+                    playFinishedSound();
+                }
+            }.start();;
+        }
+    }
+
+    public static void playFinishedSound() {
+        SoundHandler soundHandler = Minecraft.getMinecraft().getSoundHandler();
+        ResourceLocation location = new ResourceLocation(sound);
+        SoundEventAccessorComposite snd = soundHandler.getSound(location);
+        if (snd == null) {
+            System.out.println("The sound given (" + sound + ") did not give a valid sound!");
+            location = new ResourceLocation(defaultSound);
+            snd = soundHandler.getSound(location);
+        }
+        if (snd == null) {
+            System.out.println("Default sound did not give a valid sound!");
+            return;
+        }
+        ISound sound = PositionedSoundRecord.func_147673_a(location);
+        soundHandler.playSound(sound);
     }
 
     public static void minecraftDisplayFirstProgress() {
-        displayProgress(Translation.translate("betterloadingscreen.state.minecraft_init", "Minecraft Initializing"), 0.02F);
+        displayProgress(Translation.translate("betterloadingscreen.state.minecraft_init", "Minecraft Initializing"), 0F);
     }
 }

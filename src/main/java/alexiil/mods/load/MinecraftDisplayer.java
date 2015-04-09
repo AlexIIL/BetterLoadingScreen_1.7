@@ -122,7 +122,8 @@ public class MinecraftDisplayer implements IDisplayer {
             textureManager = mc.renderEngine;
         resolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
         int i = resolution.getScaleFactor();
-        framebuffer = new Framebuffer(resolution.getScaledWidth() * i, resolution.getScaledHeight() * i, true);
+        if (framebuffer == null)
+            framebuffer = new Framebuffer(resolution.getScaledWidth() * i, resolution.getScaledHeight() * i, true);
         framebuffer.bindFramebuffer(false);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
