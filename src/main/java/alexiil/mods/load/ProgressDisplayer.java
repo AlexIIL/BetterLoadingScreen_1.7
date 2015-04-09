@@ -110,6 +110,6 @@ public class ProgressDisplayer {
     }
 
     public static void minecraftDisplayFirstProgress() {
-        displayProgress(Translation.translate("minecraft_init", "Minecraft Initializing"), 0.02F);
+        displayProgress(Translation.translate("betterloadingscreen.state.minecraft_init", "Minecraft Initializing"), 0.02F);
     }
 }

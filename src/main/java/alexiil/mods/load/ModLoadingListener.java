@@ -19,20 +19,14 @@ public class ModLoadingListener {
         CONSTRUCT("construction"), PRE_INIT("pre_initialization"), INIT("initialization"), POST_INIT("post_initialization"), LOAD_COMPLETE(
                 "completed"), FINAL_LOADING("reloading_resource_packs", true);
 
-        final String translatedName;
+        private String translatedName = null;
+        final String name;
         /** If this state is only called once. This is false for all except for FINAL_LOADING */
         final boolean isLoneState;
 
         State(String name, boolean mods) {
             isLoneState = mods;
-            String failure = name.replaceAll("\\_", " ");
-            String[] split = failure.split(" ");
-            failure = "";
-            for (int i = 0; i < split.length; i++) {
-                failure += i == 0 ? "" : " ";
-                failure += split[i].substring(0, 1).toUpperCase().concat(split[i].substring(1));
-            }
-            translatedName = Translation.translate(name, failure);
+            this.name = name;
         }
 
         State(String name) {
@@ -40,6 +34,16 @@ public class ModLoadingListener {
         }
 
         public String translate() {
+            if (translatedName != null)
+                return translatedName;
+            String failure = name.replaceAll("\\_", " ");
+            String[] split = failure.split(" ");
+            failure = "";
+            for (int i = 0; i < split.length; i++) {
+                failure += i == 0 ? "" : " ";
+                failure += split[i].substring(0, 1).toUpperCase().concat(split[i].substring(1));
+            }
+            translatedName = Translation.translate("betterloadingscreen.state." + name, failure);
             return translatedName;
         }
     }
@@ -75,7 +79,8 @@ public class ModLoadingListener {
         public String getDisplayText() {
             if (state.isLoneState)
                 return state.translate();
-            return state.translate() + ": loading " + listeners.get(index).mod.getName();
+            return state.translate() + ": " + Translation.translate("betterloadingscreen.loading", "loading") + " "
+                    + listeners.get(index).mod.getName();
         }
 
         public int getProgress() {

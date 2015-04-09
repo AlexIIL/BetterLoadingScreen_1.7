@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -48,7 +47,7 @@ public class Translation {
                     if (name.startsWith(lookingFor) && !name.equals(lookingFor)) {
                         try {
                             addTranslation(name.replace(lookingFor, "").replace(".lang", ""),
-                                    new BufferedReader(new InputStreamReader(modJar.getInputStream(je))));
+                                    new BufferedReader(new InputStreamReader(modJar.getInputStream(je), "UTF-8")));
                         }
                         catch (IOException e) {
                             System.out.println("Had trouble opening " + name);
@@ -77,8 +76,9 @@ public class Translation {
             String line = "";
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(":");
-                if (parts[0].equals("lang"))
+                if (parts[0].equals("lang")) {
                     language = parts[1];
+                }
             }
         }
         catch (IOException e) {
@@ -107,14 +107,6 @@ public class Translation {
         }
         else {
             System.out.println("Failed to load ANY languages! all strings fail now!");
-        }
-
-        System.out.println("Loaded the following languages:");
-        for (Entry<String, Translation> entry : translators.entrySet()) {
-            System.out.println("  - \"" + entry.getKey() + "\"");
-            for (Entry<String, String> entry2 : entry.getValue().translations.entrySet()) {
-                System.out.println("    - \"" + entry2.getKey() + "\" -> \"" + entry2.getValue() + "\"");
-            }
         }
     }
 
