@@ -25,7 +25,7 @@ public class ProgressDisplayer {
             frame = LoadingFrame.openWindow();
             if (frame != null) {
                 frame.setMessage("Minecraft Forge Starting");
-                frame.setProgressIncrementing(0, 20, 4000);
+                frame.setProgress(0);
             }
         }
 
@@ -84,6 +84,7 @@ public class ProgressDisplayer {
     public static void start() {
         boolean useMinecraft = isClient();
         cfg = new Configuration(new File("./config/betterloadingscreen.cfg"));
+        cfg.load();
         if (useMinecraft) {
             String comment =
                     "Whether or not to use minecraft's display to show the progress. This looks better, but there is a possibilty of not being ";

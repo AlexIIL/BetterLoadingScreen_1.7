@@ -17,6 +17,7 @@ import alexiil.mods.load.git.SiteRequester;
 import com.google.common.eventbus.EventBus;
 
 import cpw.mods.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLModContainer;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -75,6 +76,7 @@ public class BetterLoadingScreen {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(instance);
+        FMLCommonHandler.instance().bus().register(instance);
         meta = event.getModMetadata();
     }
 

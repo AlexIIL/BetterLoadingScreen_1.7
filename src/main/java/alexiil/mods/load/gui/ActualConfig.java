@@ -10,11 +10,12 @@ import net.minecraftforge.common.config.Configuration;
 import alexiil.mods.load.Lib;
 import alexiil.mods.load.ProgressDisplayer;
 import alexiil.mods.load.Translation;
+import cpw.mods.fml.client.config.GuiConfig;
 import cpw.mods.fml.client.config.IConfigElement;
 
-public class ActualConfig extends cpw.mods.fml.client.config.GuiConfig {
+public class ActualConfig extends GuiConfig {
     public ActualConfig(GuiScreen parent) {
-        super(parent, getConfigElements(), Lib.Mod.ID, false, false, Translation.translate("alexiillib.config.title", "Main Configuration File"));
+        super(parent, getConfigElements(), Lib.Mod.ID, false, true, Translation.translate("alexiillib.config.title", "Main Configuration File"));
     }
 
     @SuppressWarnings("rawtypes")
