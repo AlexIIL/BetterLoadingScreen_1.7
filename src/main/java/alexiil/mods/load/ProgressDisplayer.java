@@ -65,7 +65,7 @@ public class ProgressDisplayer {
     private static IDisplayer displayer;
     private static int clientState = -1;
     public static Configuration cfg;
-    public static boolean connectExternally;
+    public static boolean connectExternally, playSound;
 
     public static boolean isClient() {
         if (clientState != -1)
@@ -94,6 +94,8 @@ public class ProgressDisplayer {
 
         connectExternally = cfg.getBoolean("connectExternally", "general", true, "If this is true, it will conect to drone.io to get a changelog");
 
+        playSound = cfg.getBoolean("playSound", "general", true, "Play a sound after minecraft has finished starting up");
+
         if (useMinecraft)
             displayer = new MinecraftDisplayerWrapper();
         else if (!GraphicsEnvironment.isHeadless())
@@ -113,7 +115,7 @@ public class ProgressDisplayer {
             return;
         displayer.close();
         displayer = null;
-        if (isClient()) {
+        if (isClient() && playSound) {
             new Thread() {
                 @Override
                 public void run() {
@@ -123,7 +125,7 @@ public class ProgressDisplayer {
                     catch (InterruptedException e) {}
                     MinecraftDisplayerWrapper.playFinishedSound();
                 }
-            }.start();;
+            }.start();
         }
     }
 
