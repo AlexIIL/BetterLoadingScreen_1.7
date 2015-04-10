@@ -16,6 +16,10 @@ public class Translation {
     private static Translation currentTranslation = null;
     private Map<String, String> translations = new HashMap<String, String>();
 
+    public static String translate(String toTranslate) {
+        return translate(toTranslate, toTranslate);
+    }
+
     public static String translate(String toTranslate, String failure) {
         if (currentTranslation != null)
             return currentTranslation.translateInternal(toTranslate, failure);

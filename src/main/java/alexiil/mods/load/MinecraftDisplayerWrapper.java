@@ -35,4 +35,8 @@ public class MinecraftDisplayerWrapper implements IDisplayer {
         if (mcDisp != null)
             mcDisp.close();
     }
+
+    public static void playFinishedSound() {
+        MinecraftDisplayer.playFinishedSound();
+    }
 }

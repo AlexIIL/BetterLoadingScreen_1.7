@@ -1,6 +1,10 @@
 package alexiil.mods.load;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SoundEventAccessorComposite;
+import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
@@ -16,6 +20,8 @@ import org.lwjgl.opengl.GL11;
 import alexiil.mods.load.ProgressDisplayer.IDisplayer;
 
 public class MinecraftDisplayer implements IDisplayer {
+    private static String sound;
+    private static String defaultSound = "random.levelup";
     private ResourceLocation locationMojangPng = new ResourceLocation("textures/gui/title/mojang.png");
     private ResourceLocation locationProgressBar = new ResourceLocation("textures/gui/icons.png");
     private TextureManager textureManager = null;
@@ -27,6 +33,23 @@ public class MinecraftDisplayer implements IDisplayer {
     private double startTexLocation = 64;
     private int startTextLocation = 30;
     private int startBarLocation = 40;
+
+    public static void playFinishedSound() {
+        SoundHandler soundHandler = Minecraft.getMinecraft().getSoundHandler();
+        ResourceLocation location = new ResourceLocation(sound);
+        SoundEventAccessorComposite snd = soundHandler.getSound(location);
+        if (snd == null) {
+            System.out.println("The sound given (" + sound + ") did not give a valid sound!");
+            location = new ResourceLocation(defaultSound);
+            snd = soundHandler.getSound(location);
+        }
+        if (snd == null) {
+            System.out.println("Default sound did not give a valid sound!");
+            return;
+        }
+        ISound sound = PositionedSoundRecord.func_147673_a(location);
+        soundHandler.playSound(sound);
+    }
 
     // Minecraft's display hasn't been created yet, so don't bother trying
     // to do anything now
@@ -46,6 +69,9 @@ public class MinecraftDisplayer implements IDisplayer {
                 "The yPosition of the bar, added to the centre (so, a value of 0 means its right in the middle of the screen, and negative numbers are higher up the screen). Default is 40";
         prop = cfg.get("general", "yPosBar", 50, comment3, -500, 500);
         startBarLocation = prop.getInt();
+
+        String comment4 = "What sound to play when loading is complete. Default is the dispenser open (" + defaultSound + ")";
+        sound = cfg.getString("sound", "general", defaultSound, comment4);
     }
 
     @Override
