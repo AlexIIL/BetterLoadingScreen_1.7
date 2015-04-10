@@ -16,6 +16,7 @@ import alexiil.mods.load.git.SiteRequester;
 
 import com.google.common.eventbus.EventBus;
 
+import cpw.mods.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import cpw.mods.fml.common.FMLModContainer;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -82,6 +83,12 @@ public class BetterLoadingScreen {
     public void guiOpen(GuiOpenEvent event) {
         if (event.gui != null && event.gui instanceof GuiMainMenu)
             ProgressDisplayer.close();
+    }
+
+    @SubscribeEvent
+    public void configChanged(OnConfigChangedEvent event) {
+        if (event.modID == Lib.Mod.ID)
+            ProgressDisplayer.cfg.save();
     }
 
     @EventHandler
