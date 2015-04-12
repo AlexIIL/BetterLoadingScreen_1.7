@@ -1,0 +1,4 @@
+language: java
+install: 
+ - "./gradlew setupCIWorkspace"
+script: ./gradlew build
