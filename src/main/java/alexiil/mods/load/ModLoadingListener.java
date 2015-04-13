@@ -16,21 +16,25 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class ModLoadingListener {
     public enum State {
-        CONSTRUCT("construction"), PRE_INIT("pre_initialization"), INIT("initialization"), POST_INIT("post_initialization"), LOAD_COMPLETE(
-                "completed"), FINAL_LOADING("reloading_resource_packs", true);
+        CONSTRUCT("construction"), PRE_INIT("pre_initialization"), LITE_LOADER_INIT("lite", true, true), INIT("initialization"), POST_INIT(
+                "post_initialization"), LOAD_COMPLETE("completed"), FINAL_LOADING("reloading_resource_packs", true, false);
 
         private String translatedName = null;
         final String name;
         /** If this state is only called once. This is false for all except for FINAL_LOADING */
         final boolean isLoneState;
+        /** If this is true, then ModStage.getNext will skip this, but it will still be included in the percentage
+         * calculation */
+        final boolean shouldSkip;
 
-        State(String name, boolean mods) {
+        State(String name, boolean mods, boolean skip) {
             isLoneState = mods;
             this.name = name;
+            shouldSkip = skip;
         }
 
         State(String name) {
-            this(name, false);
+            this(name, false, false);
         }
 
         public String translate() {
@@ -72,6 +76,8 @@ public class ModLoadingListener {
                 if (ord == State.values().length)
                     return null;
                 s = State.values()[ord];
+                if (s.shouldSkip)
+                    return new ModStage(s, ind).getNext();
             }
             return new ModStage(s, ind);
         }
@@ -83,11 +89,11 @@ public class ModLoadingListener {
                     + listeners.get(index).mod.getName();
         }
 
-        public int getProgress() {
-            int values = 100 / State.values().length;
-            int part = (int) (state.ordinal() * values);
-            int size = listeners.size();
-            int percent = values * index / size;
+        public float getProgress() {
+            float values = 100 / (float) State.values().length;
+            float part = state.ordinal() * values;
+            float size = listeners.size();
+            float percent = values * index / size;
             return part + percent;
         }
     }
