@@ -76,22 +76,20 @@ public class BetterLoadingScreenTransformer implements IClassTransformer, Opcode
                 }
             }
             for (int i = 0; i < m.instructions.size(); i++) {
-                // LiteLoader disabling -NOTE TO ANYONE FROM LITELOADER OR ANYONE ELSE:
-                // I am disabling liteloader's overlay simply because otherwise it switches between liteloader's bar and
-                // mine.
-                // I can safely assume that people won't wont this, and as my progress bar is the entire mod, they can
-                // disable
-                // this behaviour by removing my mod (as my mod does is just a loading bar)
+                /* LiteLoader disabling -NOTE TO ANYONE FROM LITELOADER OR ANYONE ELSE: I am disabling liteloader's
+                 * overlay simply because otherwise it switches between liteloader's bar and mine. I can safely assume
+                 * that people won't wont this, and as my progress bar is the entire mod, they can disable this
+                 * behaviour by removing my mod (as all my mod does is just add a loading bar) */
                 AbstractInsnNode node = m.instructions.get(i);
                 if (node instanceof MethodInsnNode) {
                     MethodInsnNode method = (MethodInsnNode) node;
-                    if (method.owner.equals("com/mumfrey/liteloader/launch/LiteLoaderTweaker")) {
+                    if (method.owner.equals("com/mumfrey/liteloader/client/gui/startup/LoadingBar")) {
                         m.instructions.remove(method);
                         continue;
                     }
                 }
-
                 // LiteLoader removing end
+
                 if (!hasFoundFMLClientHandler) {
                     if (node instanceof MethodInsnNode) {
                         MethodInsnNode method = (MethodInsnNode) node;
@@ -109,6 +107,7 @@ public class BetterLoadingScreenTransformer implements IClassTransformer, Opcode
 
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         classNode.accept(cw);
+        System.out.println("Transformed Minecraft");
         return cw.toByteArray();
     }
 }
