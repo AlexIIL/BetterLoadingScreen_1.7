@@ -12,9 +12,6 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 @IFMLLoadingPlugin.SortingIndex(Integer.MAX_VALUE - 80)
 // A big number
 public class LoadingScreenLoadPlugin implements cpw.mods.fml.relauncher.IFMLLoadingPlugin {
-    static {
-        ProgressDisplayer.start();
-    }
 
     @Override
     public String[] getASMTransformerClass() {
@@ -33,7 +30,9 @@ public class LoadingScreenLoadPlugin implements cpw.mods.fml.relauncher.IFMLLoad
 
     @Override
     public void injectData(Map<String, Object> data) {
-        Translation.addTranslations((File) data.get("coremodLocation"));
+        File coremodLocation = (File) data.get("coremodLocation");
+        Translation.addTranslations(coremodLocation);
+        ProgressDisplayer.start(coremodLocation);
     }
 
     @Override

@@ -8,6 +8,11 @@ import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import cpw.mods.fml.client.FMLFileResourcePack;
+import cpw.mods.fml.common.DummyModContainer;
+import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.common.ModMetadata;
+
 public class ProgressDisplayer {
     public interface IDisplayer {
         void open(Configuration cfg);
@@ -66,6 +71,8 @@ public class ProgressDisplayer {
     private static int clientState = -1;
     public static Configuration cfg;
     public static boolean connectExternally, playSound;
+    public static File coreModLocation;
+    public static ModContainer modContainer;
 
     public static boolean isClient() {
         if (clientState != -1)
@@ -81,10 +88,42 @@ public class ProgressDisplayer {
         return true;
     }
 
-    public static void start() {
+    public static void start(File coremodLocation) {
+        coreModLocation = coremodLocation;
+        if (coreModLocation == null)
+            coreModLocation = new File("./../bin/");
+        // Assume this is a dev environment, and that the build dir is in bin, and the test dir has the same parent as
+        // the bin dir...
+        ModMetadata md = new ModMetadata();
+        md.name = Lib.Mod.NAME;
+        md.modId = Lib.Mod.ID;
+        modContainer = new DummyModContainer(md) {
+            @Override
+            public Class<?> getCustomResourcePackClass() {
+                return FMLFileResourcePack.class;
+            }
+
+            @Override
+            public File getSource() {
+                return coreModLocation;
+            }
+
+            @Override
+            public String getModId() {
+                return Lib.Mod.ID;
+            }
+        };
+
+        File fileOld = new File("./config/betterloadingscreen.cfg");
+        File fileNew = new File("./config/BetterLoadingScreen/config.cfg");
+
+        Configuration cfg;
+        if (fileOld.exists())
+            cfg = new Configuration(fileOld);
+        else
+            cfg = new Configuration(fileNew);
+
         boolean useMinecraft = isClient();
-        cfg = new Configuration(new File("./config/betterloadingscreen.cfg"));
-        cfg.load();
         if (useMinecraft) {
             String comment =
                     "Whether or not to use minecraft's display to show the progress. This looks better, but there is a possibilty of not being ";
