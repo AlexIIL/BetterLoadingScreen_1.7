@@ -251,8 +251,8 @@ public class MinecraftDisplayer implements IDisplayer {
         }
         if (fontRenderer != mc.fontRenderer)
             fontRenderer = mc.fontRenderer;
-        if (textureManager != mc.renderEngine)
-            textureManager = mc.renderEngine;
+//        if (textureManager != mc.renderEngine)
+//            textureManager = mc.renderEngine;
         resolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
         int i = resolution.getScaleFactor();
         GL11.glMatrixMode(GL11.GL_PROJECTION);
