@@ -179,8 +179,9 @@ public class MinecraftDisplayer implements IDisplayer {
             case DYNAMIC_PERCENTAGE: {
                 ResourceLocation res = new ResourceLocation(render.resourceLocation);
                 textureManager.bindTexture(res);
-                double alteredWidth = render.position.width * percent;
-                drawRect(startX, startY, alteredWidth, render.position.height, render.texture.x, render.texture.y, alteredWidth,
+                double visibleWidth = render.position.width * percent;
+                double textureWidth = render.texture.width * percent;
+                drawRect(startX, startY, visibleWidth, render.position.height, render.texture.x, render.texture.y, textureWidth,
                         render.texture.height);
                 break;
             }
@@ -251,8 +252,8 @@ public class MinecraftDisplayer implements IDisplayer {
         }
         if (fontRenderer != mc.fontRenderer)
             fontRenderer = mc.fontRenderer;
-//        if (textureManager != mc.renderEngine)
-//            textureManager = mc.renderEngine;
+        // if (textureManager != mc.renderEngine)
+        // textureManager = mc.renderEngine;
         resolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
         int i = resolution.getScaleFactor();
         GL11.glMatrixMode(GL11.GL_PROJECTION);
