@@ -10,6 +10,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -21,10 +22,18 @@ import cpw.mods.fml.client.FMLClientHandler;
 public class BetterLoadingScreenTransformer implements IClassTransformer, Opcodes {
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
-        if (transformedName.equals("net.minecraft.client.Minecraft"))
-            return transformMinecraft(basicClass);
-        if (name.equals("com.mumfrey.liteloader.client.api.ObjectFactoryClient"))
-            return transformObjectFactoryClient(basicClass);
+        try {
+            if (transformedName.equals("net.minecraft.client.Minecraft"))
+                return transformMinecraft(basicClass);
+            if (name.equals("com.mumfrey.liteloader.client.api.ObjectFactoryClient"))
+                return transformObjectFactoryClient(basicClass);
+            if (name.equals("lumien.resourceloader.ResourceLoader"))
+                return transformResourceLoader(basicClass);
+        }
+        catch (Throwable t) {
+            System.out.println("An issue occoured while transforming " + transformedName);
+            t.printStackTrace();
+        }
         return basicClass;
     }
 
@@ -109,5 +118,28 @@ public class BetterLoadingScreenTransformer implements IClassTransformer, Opcode
         classNode.accept(cw);
         System.out.println("Transformed Minecraft");
         return cw.toByteArray();
+    }
+
+    private byte[] transformResourceLoader(byte[] before) {
+        ClassNode classNode = new ClassNode();
+        ClassReader reader = new ClassReader(before);
+        reader.accept(classNode, 0);
+
+        for (MethodNode m : classNode.methods) {
+            if (m.name.equals("preInit")) {
+                m.visibleAnnotations.remove(0);// Remove @Mod.EventHandler
+            }
+        }
+
+        for (FieldNode f : classNode.fields) {
+            if (f.name.equals("INSTANCE"))
+                f.visibleAnnotations.remove(0);// Remove @Mod.Instance("ResourceLoader")
+        }
+
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        classNode.accept(cw);
+        byte[] arr = cw.toByteArray();
+        System.out.println("Transformed ResourceLoader!");
+        return arr;
     }
 }
