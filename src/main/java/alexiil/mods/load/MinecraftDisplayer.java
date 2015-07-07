@@ -2,6 +2,7 @@ package alexiil.mods.load;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import alexiil.mods.load.json.ImageRender;
 import alexiil.mods.load.json.JsonConfig;
 import cpw.mods.fml.client.FMLFileResourcePack;
 import cpw.mods.fml.client.FMLFolderResourcePack;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class MinecraftDisplayer implements IDisplayer {
     private static String sound;
@@ -93,6 +95,7 @@ public class MinecraftDisplayer implements IDisplayer {
         else
             myPack = new FMLFolderResourcePack(ProgressDisplayer.modContainer);
         getOnlyList().add(myPack);
+
         mc.refreshResources();
 
         // Open the special config directory

@@ -2,6 +2,7 @@ package alexiil.mods.load;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
+import java.lang.reflect.Method;
 
 import net.minecraftforge.common.config.Configuration;
 
@@ -12,6 +13,7 @@ import cpw.mods.fml.client.FMLFileResourcePack;
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.ModMetadata;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class ProgressDisplayer {
     public interface IDisplayer {
@@ -74,6 +76,8 @@ public class ProgressDisplayer {
     public static File coreModLocation;
     public static ModContainer modContainer;
 
+    private static boolean hasInitRL = false;
+
     public static boolean isClient() {
         if (clientState != -1)
             return clientState == 1;
@@ -86,6 +90,23 @@ public class ProgressDisplayer {
         }
         clientState = 1;
         return true;
+    }
+
+    private static void loadResourceLoader() {
+        try {
+            Class<?> resLoaderClass = Class.forName("lumien.resourceloader.ResourceLoader");
+            Object instance = resLoaderClass.newInstance();
+            resLoaderClass.getField("INSTANCE").set(null, instance);
+            Method m = resLoaderClass.getMethod("preInit", FMLPreInitializationEvent.class);
+            m.invoke(instance, new Object[] { null });
+        }
+        catch (ClassNotFoundException ex) {
+            System.out.println("Resource loader not loaded, not initialising early");
+        }
+        catch (Throwable t) {
+            System.out.println("Resource Loader Compat FAILED!");
+            t.printStackTrace();
+        }
     }
 
     public static void start(File coremodLocation) {
@@ -146,6 +167,10 @@ public class ProgressDisplayer {
     }
 
     public static void displayProgress(String text, float percent) {
+        if (!hasInitRL) {
+            loadResourceLoader();
+            hasInitRL = true;
+        }
         displayer.displayProgress(text, percent);
     }
 
