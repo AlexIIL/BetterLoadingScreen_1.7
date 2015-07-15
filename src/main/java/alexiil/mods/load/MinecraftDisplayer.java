@@ -3,7 +3,6 @@ package alexiil.mods.load;
 import java.awt.SplashScreen;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,6 @@ import alexiil.mods.load.json.ImageRender;
 import alexiil.mods.load.json.JsonConfig;
 import cpw.mods.fml.client.FMLFileResourcePack;
 import cpw.mods.fml.client.FMLFolderResourcePack;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class MinecraftDisplayer implements IDisplayer {
     private static String sound;
@@ -114,11 +112,11 @@ public class MinecraftDisplayer implements IDisplayer {
         images[2] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -40, 0, 0), "000000", null);
         images[3] = new ImageRender(progress, EPosition.CENTER, EType.STATIC, new Area(0, 10, 182, 5), new Area(0, -50, 182, 5));
         images[4] = new ImageRender(progress, EPosition.CENTER, EType.DYNAMIC_PERCENTAGE, new Area(0, 15, 182, 5), new Area(0, -50, 182, 5));
-        
-        SplashScreen splashScreen=SplashScreen.getSplashScreen();
-        if(splashScreen!=null)
+
+        SplashScreen splashScreen = SplashScreen.getSplashScreen();
+        if (splashScreen != null)
             splashScreen.close();
-        
+
         ImageRender[] defaultImageRender = images;
 
         File imagesFile = new File(configDir, "images.json");
@@ -180,17 +178,9 @@ public class MinecraftDisplayer implements IDisplayer {
     }
 
     public void drawImageRender(ImageRender render, String text, double percent) {
-        /*
-        if(render.position.width==0){
-            render.position.width=resolution.getScaledWidth();
-        }
-        if(render.position.height==0){
-            render.position.height=resolution.getScaledHeight();
-        }
-        */
         int startX = render.transformX(resolution.getScaledWidth());
         int startY = render.transformY(resolution.getScaledHeight());
-        int PWidth=render.position.width==0?resolution.getScaledWidth():render.position.width;
+        int PWidth = render.position.width == 0 ? resolution.getScaledWidth() : render.position.width;
         GL11.glColor3f(render.getRed(), render.getGreen(), render.getBlue());
         switch (render.type) {
             case DYNAMIC_PERCENTAGE: {

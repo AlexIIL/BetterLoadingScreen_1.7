@@ -2,6 +2,7 @@ package alexiil.mods.load;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import net.minecraftforge.common.config.Configuration;
@@ -110,6 +111,7 @@ public class ProgressDisplayer {
     }
 
     public static void start(File coremodLocation) {
+        overrideForgeSplashProgress();
         coreModLocation = coremodLocation;
         if (coreModLocation == null)
             coreModLocation = new File("./../bin/");
@@ -148,7 +150,7 @@ public class ProgressDisplayer {
         if (useMinecraft) {
             String comment =
                     "Whether or not to use minecraft's display to show the progress. This looks better, but there is a possibilty of not being ";
-            comment += "compatible, so if you do have nay strange crash reports or compatability issues, try setting this to false";
+            comment += "compatible, so if you do have any strange crash reports or compatability issues, try setting this to false";
             useMinecraft = cfg.getBoolean("useMinecraft", "general", true, comment);
         }
 
@@ -190,6 +192,27 @@ public class ProgressDisplayer {
                     MinecraftDisplayerWrapper.playFinishedSound();
                 }
             }.start();
+        }
+    }
+
+    private static void overrideForgeSplashProgress() {
+        Class<?> cl = null;
+        Field fi = null;
+        try {
+            cl = Class.forName("cpw.mods.fml.client.SplashProgress");
+            fi = cl.getDeclaredField("enabled");
+            fi.setAccessible(true);
+            fi.set(null, false);
+            // Set this just to make forge's screen exit ASAP.
+            fi = cl.getDeclaredField("done");
+            fi.setAccessible(true);
+            fi.set(null, true);
+        }
+        catch (Throwable t) {
+            System.out.println("Could not override forge's splash screen for some reason...");
+            System.out.println("class = " + cl);
+            System.out.println("field = " + fi);
+            t.printStackTrace();
         }
     }
 

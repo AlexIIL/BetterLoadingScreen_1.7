@@ -24,12 +24,14 @@ public class ImageRender {
     }
 
     public int transformX(int screenWidth) {
-        int trueX=position.width==0?0:screenWidth - position.width;
-        return positionType.transformX(position.x, trueX);
+        int trueX = position.width;
+        if (trueX == 0)
+            trueX = screenWidth;
+        return positionType.transformX(position.x, screenWidth - trueX);
     }
 
-    public int transformY(int screenWidth) {
-        return positionType.transformY(position.y, screenWidth - position.height);
+    public int transformY(int screenHeight) {
+        return positionType.transformY(position.y, screenHeight - position.height);
     }
 
     public int getColour() {
