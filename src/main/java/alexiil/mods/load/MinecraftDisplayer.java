@@ -175,6 +175,12 @@ public class MinecraftDisplayer implements IDisplayer {
     }
 
     public void drawImageRender(ImageRender render, String text, double percent) {
+        if(render.position.width==0){
+            render.position.width=resolution.getScaledWidth();
+        }
+        if(render.position.height==0){
+            render.position.width=resolution.getScaledHeight();
+        }
         int startX = render.transformX(resolution.getScaledWidth());
         int startY = render.transformY(resolution.getScaledHeight());
         GL11.glColor3f(render.getRed(), render.getGreen(), render.getBlue());
