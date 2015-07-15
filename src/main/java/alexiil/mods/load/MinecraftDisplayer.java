@@ -1,6 +1,6 @@
 package alexiil.mods.load;
 
-import java.awt.splashScreen;
+import java.awt.SplashScreen;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
