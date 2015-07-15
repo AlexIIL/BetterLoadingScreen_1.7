@@ -179,7 +179,7 @@ public class MinecraftDisplayer implements IDisplayer {
             render.position.width=resolution.getScaledWidth();
         }
         if(render.position.height==0){
-            render.position.width=resolution.getScaledHeight();
+            render.position.height=resolution.getScaledHeight();
         }
         int startX = render.transformX(resolution.getScaledWidth());
         int startY = render.transformY(resolution.getScaledHeight());
