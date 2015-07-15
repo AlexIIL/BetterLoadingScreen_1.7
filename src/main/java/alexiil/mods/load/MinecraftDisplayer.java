@@ -113,7 +113,11 @@ public class MinecraftDisplayer implements IDisplayer {
         images[2] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -40, 0, 0), "000000", null);
         images[3] = new ImageRender(progress, EPosition.CENTER, EType.STATIC, new Area(0, 10, 182, 5), new Area(0, -50, 182, 5));
         images[4] = new ImageRender(progress, EPosition.CENTER, EType.DYNAMIC_PERCENTAGE, new Area(0, 15, 182, 5), new Area(0, -50, 182, 5));
-
+        
+        SplashScreen splashScreen=SplashScreen.getSplashScreen();
+        if(splashScreen!=null)
+            splashScreen.close();
+        
         ImageRender[] defaultImageRender = images;
 
         File imagesFile = new File(configDir, "images.json");
