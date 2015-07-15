@@ -1,5 +1,6 @@
 package alexiil.mods.load;
 
+import java.awt.SplashScreen;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -113,7 +114,11 @@ public class MinecraftDisplayer implements IDisplayer {
         images[2] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -40, 0, 0), "000000", null);
         images[3] = new ImageRender(progress, EPosition.CENTER, EType.STATIC, new Area(0, 10, 182, 5), new Area(0, -50, 182, 5));
         images[4] = new ImageRender(progress, EPosition.CENTER, EType.DYNAMIC_PERCENTAGE, new Area(0, 15, 182, 5), new Area(0, -50, 182, 5));
-
+        
+        SplashScreen splashScreen=SplashScreen.getSplashScreen();
+        if(splashScreen!=null)
+            splashScreen.close();
+        
         ImageRender[] defaultImageRender = images;
 
         File imagesFile = new File(configDir, "images.json");
@@ -175,14 +180,23 @@ public class MinecraftDisplayer implements IDisplayer {
     }
 
     public void drawImageRender(ImageRender render, String text, double percent) {
+        /*
+        if(render.position.width==0){
+            render.position.width=resolution.getScaledWidth();
+        }
+        if(render.position.height==0){
+            render.position.height=resolution.getScaledHeight();
+        }
+        */
         int startX = render.transformX(resolution.getScaledWidth());
         int startY = render.transformY(resolution.getScaledHeight());
+        int PWidth=render.position.width==0?resolution.getScaledWidth():render.position.width;
         GL11.glColor3f(render.getRed(), render.getGreen(), render.getBlue());
         switch (render.type) {
             case DYNAMIC_PERCENTAGE: {
                 ResourceLocation res = new ResourceLocation(render.resourceLocation);
                 textureManager.bindTexture(res);
-                double visibleWidth = render.position.width * percent;
+                double visibleWidth = PWidth * percent;
                 double textureWidth = render.texture.width * percent;
                 drawRect(startX, startY, visibleWidth, render.position.height, render.texture.x, render.texture.y, textureWidth,
                         render.texture.height);
@@ -216,7 +230,7 @@ public class MinecraftDisplayer implements IDisplayer {
             default: {// Assume STATIC
                 ResourceLocation res = new ResourceLocation(render.resourceLocation);
                 textureManager.bindTexture(res);
-                drawRect(startX, startY, render.position.width, render.position.height, render.texture.x, render.texture.y, render.texture.width,
+                drawRect(startX, startY, PWidth, render.position.height, render.texture.x, render.texture.y, render.texture.width,
                         render.texture.height);
                 break;
             }
