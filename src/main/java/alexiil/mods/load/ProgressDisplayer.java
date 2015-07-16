@@ -100,6 +100,7 @@ public class ProgressDisplayer {
             resLoaderClass.getField("INSTANCE").set(null, instance);
             Method m = resLoaderClass.getMethod("preInit", FMLPreInitializationEvent.class);
             m.invoke(instance, new Object[] { null });
+            System.out.println("Resource loader loaded early succssessfully :)");
         }
         catch (ClassNotFoundException ex) {
             System.out.println("Resource loader not loaded, not initialising early");
