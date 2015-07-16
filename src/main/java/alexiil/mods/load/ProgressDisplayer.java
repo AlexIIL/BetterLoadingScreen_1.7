@@ -112,7 +112,6 @@ public class ProgressDisplayer {
     }
 
     public static void start(File coremodLocation) {
-        overrideForgeSplashProgress();
         coreModLocation = coremodLocation;
         if (coreModLocation == null)
             coreModLocation = new File("./../bin/");
@@ -172,6 +171,7 @@ public class ProgressDisplayer {
     public static void displayProgress(String text, float percent) {
         if (!hasInitRL) {
             loadResourceLoader();
+            overrideForgeSplashProgress();
             hasInitRL = true;
         }
         displayer.displayProgress(text, percent);

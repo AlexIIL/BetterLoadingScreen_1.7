@@ -17,9 +17,9 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.3.4"
+version = "1.3.5"
 group= "alexiil.mods.load" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "BetterLoadingScreen"
+archivesBaseName = "[1.7.10] BetterLoadingScreen"
 
 minecraft {
     version = "1.7.10-10.13.3.1356-1.7.10"
