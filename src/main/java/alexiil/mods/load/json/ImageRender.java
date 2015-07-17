@@ -24,6 +24,8 @@ public class ImageRender {
     }
 
     public int transformX(int screenWidth) {
+        if (position == null || positionType == null)
+            return 0;
         int trueX = position.width;
         if (trueX == 0)
             trueX = screenWidth;
@@ -31,6 +33,8 @@ public class ImageRender {
     }
 
     public int transformY(int screenHeight) {
+        if (position == null || positionType == null)
+            return 0;
         return positionType.transformY(position.y, screenHeight - position.height);
     }
 

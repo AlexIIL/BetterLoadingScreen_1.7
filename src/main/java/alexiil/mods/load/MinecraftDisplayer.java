@@ -8,6 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.lwjgl.opengl.GL11;
+
+import alexiil.mods.load.ProgressDisplayer.IDisplayer;
+import alexiil.mods.load.json.Area;
+import alexiil.mods.load.json.EPosition;
+import alexiil.mods.load.json.EType;
+import alexiil.mods.load.json.ImageRender;
+import alexiil.mods.load.json.JsonConfig;
+import cpw.mods.fml.client.FMLFileResourcePack;
+import cpw.mods.fml.client.FMLFolderResourcePack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -22,17 +32,6 @@ import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 
-import org.lwjgl.opengl.GL11;
-
-import alexiil.mods.load.ProgressDisplayer.IDisplayer;
-import alexiil.mods.load.json.Area;
-import alexiil.mods.load.json.EPosition;
-import alexiil.mods.load.json.EType;
-import alexiil.mods.load.json.ImageRender;
-import alexiil.mods.load.json.JsonConfig;
-import cpw.mods.fml.client.FMLFileResourcePack;
-import cpw.mods.fml.client.FMLFolderResourcePack;
-
 public class MinecraftDisplayer implements IDisplayer {
     private static String sound;
     private static String defaultSound = "random.levelup";
@@ -44,6 +43,7 @@ public class MinecraftDisplayer implements IDisplayer {
     private Minecraft mc = null;
     private boolean callAgain = false;
     private IResourcePack myPack;
+    private float clearRed = 1, clearGreen = 1, clearBlue = 1;
 
     public static void playFinishedSound() {
         SoundHandler soundHandler = Minecraft.getMinecraft().getSoundHandler();
@@ -103,7 +103,7 @@ public class MinecraftDisplayer implements IDisplayer {
             configDir.mkdirs();
 
         // Image Config
-        images = new ImageRender[5];
+        images = new ImageRender[6];
         String progress = "betterloadingscreen:textures/progressBars.png";
         String title = "textures/gui/title/mojang.png";
         String font = "textures/font/ascii.png";
@@ -112,6 +112,7 @@ public class MinecraftDisplayer implements IDisplayer {
         images[2] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -40, 0, 0), "000000", null);
         images[3] = new ImageRender(progress, EPosition.CENTER, EType.STATIC, new Area(0, 10, 182, 5), new Area(0, -50, 182, 5));
         images[4] = new ImageRender(progress, EPosition.CENTER, EType.DYNAMIC_PERCENTAGE, new Area(0, 15, 182, 5), new Area(0, -50, 182, 5));
+        images[5] = new ImageRender(null, null, EType.CLEAR_COLOUR, null, null, "ffffff", null);
 
         SplashScreen splashScreen = SplashScreen.getSplashScreen();
         if (splashScreen != null)
@@ -123,19 +124,26 @@ public class MinecraftDisplayer implements IDisplayer {
         JsonConfig<ImageRender[]> imagesConfig = new JsonConfig<ImageRender[]>(imagesFile, ImageRender[].class, images);
         images = imagesConfig.load();
 
+        for (ImageRender ir : images) {
+            if (ir.type == EType.CLEAR_COLOUR) {
+                clearRed = ir.getRed();
+                clearGreen = ir.getGreen();
+                clearBlue = ir.getBlue();
+            }
+        }
+
         // Preset one is the default one
         definePreset(configDir, "preset one", defaultImageRender);
 
         // Preset two uses something akin to minecraft's loading screen when loading a world
-        ImageRender[] presetData = new ImageRender[4];
-        presetData[0] =
-                new ImageRender("textures/gui/options_background.png", EPosition.CENTER, EType.STATIC, new Area(0, 0, 65536, 65536), new Area(0, 0,
-                        8192, 8192), "404040", null);
+        ImageRender[] presetData = new ImageRender[5];
+        presetData[0] = new ImageRender("textures/gui/options_background.png", EPosition.CENTER, EType.STATIC, new Area(0, 0, 65536, 65536),
+                new Area(0, 0, 8192, 8192), "404040", null);
         presetData[1] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_STATUS, null, new Area(0, 0, 0, 0), "FFFFFF", null);
         presetData[2] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -10, 0, 0), "FFFFFF", null);
-        presetData[3] =
-                new ImageRender(font, EPosition.BOTTOM_CENTER, EType.STATIC_TEXT, null, new Area(0, 10, 0, 0), "FFDD49",
-                        "Better Loading Screen by AlexIIL");
+        presetData[3] = new ImageRender(font, EPosition.BOTTOM_CENTER, EType.STATIC_TEXT, null, new Area(0, 10, 0, 0), "FFDD49",
+                "Better Loading Screen by AlexIIL");
+        presetData[4] = new ImageRender("", null, EType.CLEAR_COLOUR, null, null, "ffffff", null);
         definePreset(configDir, "preset two", presetData);
 
         // Preset three uses... idk, TODO: Preset 3 etc
@@ -180,7 +188,10 @@ public class MinecraftDisplayer implements IDisplayer {
     public void drawImageRender(ImageRender render, String text, double percent) {
         int startX = render.transformX(resolution.getScaledWidth());
         int startY = render.transformY(resolution.getScaledHeight());
-        int PWidth = render.position.width == 0 ? resolution.getScaledWidth() : render.position.width;
+        int PWidth = 0;
+        if (render.position != null) {
+            PWidth = render.position.width == 0 ? resolution.getScaledWidth() : render.position.width;
+        }
         GL11.glColor3f(render.getRed(), render.getGreen(), render.getBlue());
         switch (render.type) {
             case DYNAMIC_PERCENTAGE: {
@@ -217,13 +228,15 @@ public class MinecraftDisplayer implements IDisplayer {
                 drawString(font, render.text, startX1, startY1, render.getColour());
                 break;
             }
-            default: {// Assume STATIC
+            case STATIC: {
                 ResourceLocation res = new ResourceLocation(render.resourceLocation);
                 textureManager.bindTexture(res);
                 drawRect(startX, startY, PWidth, render.position.height, render.texture.x, render.texture.y, render.texture.width,
                         render.texture.height);
                 break;
             }
+            case CLEAR_COLOUR:// Ignore this, as its set elsewhere
+                break;
         }
     }
 
@@ -275,7 +288,7 @@ public class MinecraftDisplayer implements IDisplayer {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
 
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glClearColor(1, 1, 1, 1);
+        GL11.glClearColor(clearRed, clearGreen, clearBlue, 1);
 
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
