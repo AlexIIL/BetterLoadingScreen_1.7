@@ -140,7 +140,6 @@ public class ProgressDisplayer {
         File fileOld = new File("./config/betterloadingscreen.cfg");
         File fileNew = new File("./config/BetterLoadingScreen/config.cfg");
 
-        Configuration cfg;
         if (fileOld.exists())
             cfg = new Configuration(fileOld);
         else
