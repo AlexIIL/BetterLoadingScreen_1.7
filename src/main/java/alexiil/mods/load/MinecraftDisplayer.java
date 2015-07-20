@@ -297,7 +297,6 @@ public class MinecraftDisplayer implements IDisplayer {
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 
         GL11.glColor4f(1, 1, 1, 1);
-
     }
 
     private void postDisplayScreen() {
