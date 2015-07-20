@@ -189,8 +189,10 @@ public class MinecraftDisplayer implements IDisplayer {
         int startX = render.transformX(resolution.getScaledWidth());
         int startY = render.transformY(resolution.getScaledHeight());
         int PWidth = 0;
+        int PHeight = 0;
         if (render.position != null) {
             PWidth = render.position.width == 0 ? resolution.getScaledWidth() : render.position.width;
+            PHeight = render.position.height == 0 ? resolution.getScaledHeight() : render.position.height;
         }
         GL11.glColor3f(render.getRed(), render.getGreen(), render.getBlue());
         switch (render.type) {
@@ -199,8 +201,7 @@ public class MinecraftDisplayer implements IDisplayer {
                 textureManager.bindTexture(res);
                 double visibleWidth = PWidth * percent;
                 double textureWidth = render.texture.width * percent;
-                drawRect(startX, startY, visibleWidth, render.position.height, render.texture.x, render.texture.y, textureWidth,
-                        render.texture.height);
+                drawRect(startX, startY, visibleWidth, PHeight, render.texture.x, render.texture.y, textureWidth, render.texture.height);
                 break;
             }
             case DYNAMIC_TEXT_PERCENTAGE: {
@@ -231,8 +232,7 @@ public class MinecraftDisplayer implements IDisplayer {
             case STATIC: {
                 ResourceLocation res = new ResourceLocation(render.resourceLocation);
                 textureManager.bindTexture(res);
-                drawRect(startX, startY, PWidth, render.position.height, render.texture.x, render.texture.y, render.texture.width,
-                        render.texture.height);
+                drawRect(startX, startY, PWidth, PHeight, render.texture.x, render.texture.y, render.texture.width, render.texture.height);
                 break;
             }
             case CLEAR_COLOUR:// Ignore this, as its set elsewhere
