@@ -52,7 +52,7 @@ public class ImageRender {
     }
 
     private float getColourPart(int bitStart) {
-        return ((getColour() >> bitStart) & 0xFF) / 256F;
+        return ((getColour() >> bitStart) & 0xFF) / 255F;
     }
 
     public float getRed() {

@@ -5,8 +5,6 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import net.minecraftforge.common.config.Configuration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,10 +13,11 @@ import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.common.config.Configuration;
 
 public class ProgressDisplayer {
     public interface IDisplayer {
-        void open(Configuration cfg);
+                void open(Configuration cfg);
 
         void displayProgress(String text, float percent);
 
@@ -112,6 +111,7 @@ public class ProgressDisplayer {
     }
 
     public static void start(File coremodLocation) {
+        LoadingFrame.setSystemLAF();
         coreModLocation = coremodLocation;
         if (coreModLocation == null)
             coreModLocation = new File("./../bin/");

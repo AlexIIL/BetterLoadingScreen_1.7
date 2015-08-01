@@ -60,8 +60,7 @@ public class LoadingFrame extends JFrame {
     private JProgressBar progressBar;
     private ThreadIncrementer incrementer;
 
-    /** Launch the application. */
-    public static LoadingFrame openWindow() {
+    public static void setSystemLAF() {
         String clsName = UIManager.getSystemLookAndFeelClassName();
         try {
             UIManager.setLookAndFeel(clsName);
@@ -69,6 +68,10 @@ public class LoadingFrame extends JFrame {
         catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    /** Launch the application. */
+    public static LoadingFrame openWindow() {
         try {
             LoadingFrame frame = new LoadingFrame();
             frame.setBounds(getWindowBounds(frame));

@@ -39,5 +39,4 @@ public class LoadingScreenLoadPlugin implements cpw.mods.fml.relauncher.IFMLLoad
     public String getAccessTransformerClass() {
         return null;
     }
-
 }

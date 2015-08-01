@@ -5,19 +5,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import alexiil.mods.load.BetterLoadingScreen;
 import alexiil.mods.load.ProgressDisplayer;
 import alexiil.mods.load.Translation;
 import alexiil.mods.load.git.GitHubUser;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 
 public class BaseConfig extends GuiScreen {
     private GitHubUserScrollingList contributors;
     private CommitScrollingList commits;
     private GuiButton helpClose;
+    private GuiButton previewButton;
     private boolean help = false;
     private int xPosHelp = 0;
     private List<List<String>> helpText;
@@ -112,13 +113,18 @@ public class BaseConfig extends GuiScreen {
         return fontRendererObj;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui() {
         String text = Translation.translate("alexiillib.config.button");
         int length = fontRendererObj.getStringWidth(text) + 20;
         totalLength = 10;
         buttonList.add(new GuiButton(0, totalLength, 1, length, 20, text));
+        totalLength += length;
+
+        text = Translation.translate("alexiil.load.preview");
+        length = fontRendererObj.getStringWidth(text) + 20;
+        previewButton = new GuiButton(3, totalLength, 1, length, 20, text);
+        buttonList.add(previewButton);
         totalLength += length;
 
         text = Translation.translate("alexiillib.config.help");
@@ -147,6 +153,9 @@ public class BaseConfig extends GuiScreen {
         if (button.id == 2 && helpClose.visible) {
             help = false;
             helpClose.visible = false;
+        }
+        if (button.id == 3) {
+            Minecraft.getMinecraft().displayGuiScreen(new GuiPreview(this));
         }
     }
 }

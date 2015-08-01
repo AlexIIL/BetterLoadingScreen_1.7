@@ -35,6 +35,7 @@ import net.minecraftforge.common.config.Configuration;
 public class MinecraftDisplayer implements IDisplayer {
     private static String sound;
     private static String defaultSound = "random.levelup";
+    private final boolean preview;
     private ImageRender[] images;
     private TextureManager textureManager = null;
     private Map<String, FontRenderer> fontRenderers = new HashMap<String, FontRenderer>();
@@ -60,6 +61,14 @@ public class MinecraftDisplayer implements IDisplayer {
         }
         ISound sound = PositionedSoundRecord.func_147673_a(location);
         soundHandler.playSound(sound);
+    }
+
+    public MinecraftDisplayer() {
+        this(false);
+    }
+
+    public MinecraftDisplayer(boolean preview) {
+        this.preview = preview;
     }
 
     @SuppressWarnings("unchecked")
@@ -89,14 +98,15 @@ public class MinecraftDisplayer implements IDisplayer {
         sound = cfg.getString("sound", "general", defaultSound, comment4);
 
         // Add ourselves as a resource pack
-        if (!ProgressDisplayer.coreModLocation.isDirectory())
-            myPack = new FMLFileResourcePack(ProgressDisplayer.modContainer);
-        else
-            myPack = new FMLFolderResourcePack(ProgressDisplayer.modContainer);
-        getOnlyList().add(myPack);
+        if (!preview) {
+            if (!ProgressDisplayer.coreModLocation.isDirectory())
+                myPack = new FMLFileResourcePack(ProgressDisplayer.modContainer);
+            else
+                myPack = new FMLFolderResourcePack(ProgressDisplayer.modContainer);
+            getOnlyList().add(myPack);
 
-        mc.refreshResources();
-
+            mc.refreshResources();
+        }
         // Open the special config directory
         File configDir = new File("./config/BetterLoadingScreen");
         if (!configDir.exists())
@@ -114,9 +124,11 @@ public class MinecraftDisplayer implements IDisplayer {
         images[4] = new ImageRender(progress, EPosition.CENTER, EType.DYNAMIC_PERCENTAGE, new Area(0, 15, 182, 5), new Area(0, -50, 182, 5));
         images[5] = new ImageRender(null, null, EType.CLEAR_COLOUR, null, null, "ffffff", null);
 
-        SplashScreen splashScreen = SplashScreen.getSplashScreen();
-        if (splashScreen != null)
-            splashScreen.close();
+        if (!preview) {
+            SplashScreen splashScreen = SplashScreen.getSplashScreen();
+            if (splashScreen != null)
+                splashScreen.close();
+        }
 
         ImageRender[] defaultImageRender = images;
 
@@ -179,8 +191,10 @@ public class MinecraftDisplayer implements IDisplayer {
             return fontRenderers.get(fontTexture);
         FontRenderer font = new FontRenderer(mc.gameSettings, new ResourceLocation(fontTexture), textureManager, false);
         font.onResourceManagerReload(mc.getResourceManager());
-        mc.refreshResources();
-        font.onResourceManagerReload(mc.getResourceManager());
+        if (!preview) {
+            mc.refreshResources();
+            font.onResourceManagerReload(mc.getResourceManager());
+        }
         fontRenderers.put(fontTexture, font);
         return font;
     }
@@ -258,17 +272,22 @@ public class MinecraftDisplayer implements IDisplayer {
 
     private void preDisplayScreen() {
         if (textureManager == null) {
-            textureManager = mc.renderEngine = new TextureManager(mc.getResourceManager());
-            mc.refreshResources();
-            textureManager.onResourceManagerReload(mc.getResourceManager());
-            mc.fontRenderer = new FontRenderer(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), textureManager, false);
-            if (mc.gameSettings.language != null) {
-                mc.fontRenderer.setUnicodeFlag(mc.func_152349_b());
-                LanguageManager lm = mc.getLanguageManager();
-                mc.fontRenderer.setBidiFlag(lm.isCurrentLanguageBidirectional());
+            if (preview) {
+                textureManager = mc.renderEngine;
             }
-            mc.fontRenderer.onResourceManagerReload(mc.getResourceManager());
-            callAgain = true;
+            else {
+                textureManager = mc.renderEngine = new TextureManager(mc.getResourceManager());
+                mc.refreshResources();
+                textureManager.onResourceManagerReload(mc.getResourceManager());
+                mc.fontRenderer = new FontRenderer(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), textureManager, false);
+                if (mc.gameSettings.language != null) {
+                    mc.fontRenderer.setUnicodeFlag(mc.func_152349_b());
+                    LanguageManager lm = mc.getLanguageManager();
+                    mc.fontRenderer.setBidiFlag(lm.isCurrentLanguageBidirectional());
+                }
+                mc.fontRenderer.onResourceManagerReload(mc.getResourceManager());
+                callAgain = true;
+            }
         }
         if (fontRenderer != mc.fontRenderer)
             fontRenderer = mc.fontRenderer;

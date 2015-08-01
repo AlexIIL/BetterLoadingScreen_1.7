@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import net.minecraft.client.resources.I18n;
+
+@Deprecated
 public class Translation {
     private static Map<String, Translation> translators = new HashMap<String, Translation>();
     private static Translation currentTranslation = null;
@@ -21,15 +24,18 @@ public class Translation {
     }
 
     public static String translate(String toTranslate, String failure) {
-        if (currentTranslation != null)
-            return currentTranslation.translateInternal(toTranslate, failure);
-        return failure;
+        return I18n.format(toTranslate);
+        // if (currentTranslation != null)
+        // return currentTranslation.translateInternal(toTranslate, failure);
+        // return failure;
     }
 
     public static void addTranslations(File modLocation) {
         String lookingFor = "assets/betterloadingscreen/lang/";
-        if (modLocation == null)
+        if (modLocation == null) {
+            System.out.println("Could not find the translation file!");
             return;
+        }
         if (modLocation.isDirectory()) {
             File langFolder = new File(modLocation, lookingFor);
             System.out.println(langFolder.getAbsolutePath() + ", " + langFolder.isDirectory());
@@ -85,9 +91,7 @@ public class Translation {
                 }
             }
         }
-        catch (IOException e) {
-
-        }
+        catch (IOException ignored) {}
         finally {
             if (reader != null)
                 try {
@@ -110,7 +114,7 @@ public class Translation {
             currentTranslation = translators.values().iterator().next();
         }
         else {
-            System.out.println("Failed to load ANY languages! all strings fail now!");
+            System.out.println("Failed to load ANY languages! All strings fail now!");
         }
     }
 
@@ -135,6 +139,7 @@ public class Translation {
                 }
                 else {
                     translations.put(splitter[0], splitter[1]);
+                    System.out.println("Found a translation " + splitter);
                 }
             }
         }
