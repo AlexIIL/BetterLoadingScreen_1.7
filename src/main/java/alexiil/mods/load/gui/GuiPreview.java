@@ -2,11 +2,12 @@ package alexiil.mods.load.gui;
 
 import alexiil.mods.load.MinecraftDisplayer;
 import alexiil.mods.load.ProgressDisplayer;
+import alexiil.mods.load.json.ImageRender;
 import net.minecraft.client.gui.GuiScreen;
 
 public class GuiPreview extends GuiScreen {
     private final BaseConfig parent;
-    private final MinecraftDisplayer displayer;
+    private MinecraftDisplayer displayer;
 
     public String debugText = "Random Text";
     public float debugPercent = 0.2f;
@@ -38,5 +39,14 @@ public class GuiPreview extends GuiScreen {
         mc.displayGuiScreen(parent);
         preview.dispose();
         preview = null;
+    }
+
+    public ImageRender[] getImageData() {
+        return displayer.getImageData();
+    }
+
+    public void setImageData(ImageRender[] data) {
+        displayer = new MinecraftDisplayer(true);
+        displayer.openPreview(data);
     }
 }

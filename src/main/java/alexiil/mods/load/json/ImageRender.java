@@ -1,15 +1,19 @@
 package alexiil.mods.load.json;
 
-public class ImageRender {
-    public final String resourceLocation;
-    public final EPosition positionType;
-    public final EType type;
-    public final Area texture;
-    public final Area position;
-    public final String colour;
-    public final String text;
+import java.awt.Color;
 
-    public ImageRender(String resourceLocation, EPosition positionType, EType type, Area texture, Area position, String colour, String text) {
+public class ImageRender {
+    public String resourceLocation;
+    public EPosition positionType;
+    public EType type;
+    public Area texture;
+    public Area position;
+    public String colour;
+    public String text;
+    public String comment;
+
+    public ImageRender(String resourceLocation, EPosition positionType, EType type, Area texture, Area position, String colour, String text,
+            String comment) {
         this.resourceLocation = resourceLocation;
         this.positionType = positionType;
         this.type = type;
@@ -17,10 +21,11 @@ public class ImageRender {
         this.position = position;
         this.colour = colour;
         this.text = text;
+        this.comment = comment;
     }
 
     public ImageRender(String resourceLocation, EPosition positionType, EType type, Area texture, Area position) {
-        this(resourceLocation, positionType, type, texture, position, null, null);
+        this(resourceLocation, positionType, type, texture, position, null, null, "None");
     }
 
     public int transformX(int screenWidth) {
@@ -49,6 +54,22 @@ public class ImageRender {
                 return 0xFFFFFF;
             }
         }
+    }
+
+    public void setColour(Color color) {
+        String red = Integer.toHexString(color.getRed());
+        if (red.length() == 1) {
+            red = "0" + red;
+        }
+        String green = Integer.toHexString(color.getGreen());
+        if (green.length() == 1) {
+            green = "0" + green;
+        }
+        String blue = Integer.toHexString(color.getBlue());
+        if (blue.length() == 1) {
+            blue = "0" + blue;
+        }
+        colour = red + green + blue;
     }
 
     private float getColourPart(int bitStart) {

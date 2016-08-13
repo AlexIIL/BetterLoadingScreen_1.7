@@ -35,6 +35,8 @@ import net.minecraftforge.common.config.Configuration;
 public class MinecraftDisplayer implements IDisplayer {
     private static String sound;
     private static String defaultSound = "random.levelup";
+    private static String fontTexture;
+    private static String defaultFontTexture = "textures/font/ascii.png";
     private final boolean preview;
     private ImageRender[] images;
     private TextureManager textureManager = null;
@@ -88,6 +90,11 @@ public class MinecraftDisplayer implements IDisplayer {
         return null;
     }
 
+    public void openPreview(ImageRender[] renders) {
+        mc = Minecraft.getMinecraft();
+        images = renders;
+    }
+
     // Minecraft's display hasn't been created yet, so don't bother trying
     // to do anything now
     @Override
@@ -96,6 +103,10 @@ public class MinecraftDisplayer implements IDisplayer {
         // Open the normal config
         String comment4 = "What sound to play when loading is complete. Default is the level up sound (" + defaultSound + ")";
         sound = cfg.getString("sound", "general", defaultSound, comment4);
+
+        comment4 = "What font texture to use? Special Cases:"
+                + "\n - If you use the Russian mod \"Client Fixer\" then change this to \"textures/font/ascii_fat.png\"" + "\n";
+        fontTexture = cfg.getString("font", "general", defaultFontTexture, comment4);
 
         // Add ourselves as a resource pack
         if (!preview) {
@@ -116,13 +127,12 @@ public class MinecraftDisplayer implements IDisplayer {
         images = new ImageRender[6];
         String progress = "betterloadingscreen:textures/progressBars.png";
         String title = "textures/gui/title/mojang.png";
-        String font = "textures/font/ascii.png";
         images[0] = new ImageRender(title, EPosition.CENTER, EType.STATIC, new Area(0, 0, 256, 256), new Area(0, 0, 256, 256));
-        images[1] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_STATUS, null, new Area(0, -30, 0, 0), "000000", null);
-        images[2] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -40, 0, 0), "000000", null);
+        images[1] = new ImageRender(fontTexture, EPosition.CENTER, EType.DYNAMIC_TEXT_STATUS, null, new Area(0, -30, 0, 0), "000000", null, "");
+        images[2] = new ImageRender(fontTexture, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -40, 0, 0), "000000", null, "");
         images[3] = new ImageRender(progress, EPosition.CENTER, EType.STATIC, new Area(0, 10, 182, 5), new Area(0, -50, 182, 5));
         images[4] = new ImageRender(progress, EPosition.CENTER, EType.DYNAMIC_PERCENTAGE, new Area(0, 15, 182, 5), new Area(0, -50, 182, 5));
-        images[5] = new ImageRender(null, null, EType.CLEAR_COLOUR, null, null, "ffffff", null);
+        images[5] = new ImageRender(null, null, EType.CLEAR_COLOUR, null, null, "ffffff", null, "");
 
         if (!preview) {
             SplashScreen splashScreen = SplashScreen.getSplashScreen();
@@ -150,12 +160,14 @@ public class MinecraftDisplayer implements IDisplayer {
         // Preset two uses something akin to minecraft's loading screen when loading a world
         ImageRender[] presetData = new ImageRender[5];
         presetData[0] = new ImageRender("textures/gui/options_background.png", EPosition.CENTER, EType.STATIC, new Area(0, 0, 65536, 65536),
-                new Area(0, 0, 8192, 8192), "404040", null);
-        presetData[1] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_STATUS, null, new Area(0, 0, 0, 0), "FFFFFF", null);
-        presetData[2] = new ImageRender(font, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -10, 0, 0), "FFFFFF", null);
-        presetData[3] = new ImageRender(font, EPosition.BOTTOM_CENTER, EType.STATIC_TEXT, null, new Area(0, 10, 0, 0), "FFDD49",
-                "Better Loading Screen by AlexIIL");
-        presetData[4] = new ImageRender("", null, EType.CLEAR_COLOUR, null, null, "ffffff", null);
+                new Area(0, 0, 8192, 8192), "404040", null, "Background image");
+        presetData[1] = new ImageRender(fontTexture, EPosition.CENTER, EType.DYNAMIC_TEXT_STATUS, null, new Area(0, 0, 0, 0), "FFFFFF", null,
+                "The current operation");
+        presetData[2] = new ImageRender(fontTexture, EPosition.CENTER, EType.DYNAMIC_TEXT_PERCENTAGE, null, new Area(0, -10, 0, 0), "FFFFFF", null,
+                "The overall percentage progress");
+        presetData[3] = new ImageRender(fontTexture, EPosition.BOTTOM_CENTER, EType.STATIC_TEXT, null, new Area(0, 10, 0, 0), "FFDD49",
+                "Better Loading Screen by AlexIIL", "Text at the bottom of the screen");
+        presetData[4] = new ImageRender("", null, EType.CLEAR_COLOUR, null, null, "ffffff", null, "Background colour");
         definePreset(configDir, "preset two", presetData);
 
         // Preset three uses... idk, TODO: Preset 3 etc
@@ -306,8 +318,8 @@ public class MinecraftDisplayer implements IDisplayer {
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
 
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glClearColor(clearRed, clearGreen, clearBlue, 1);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -316,6 +328,10 @@ public class MinecraftDisplayer implements IDisplayer {
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 
         GL11.glColor4f(1, 1, 1, 1);
+    }
+
+    public ImageRender[] getImageData() {
+        return images;
     }
 
     private void postDisplayScreen() {

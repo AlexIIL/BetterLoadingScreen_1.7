@@ -12,7 +12,6 @@ import java.awt.event.WindowEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JTextField;
@@ -30,6 +29,7 @@ public class FramePreview extends JFrame {
     public FramePreview(final GuiPreview gui) {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 450, 300);
+        setTitle("Preview editor");
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(new BorderLayout(0, 0));
@@ -44,7 +44,8 @@ public class FramePreview extends JFrame {
         btnEditor.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Not Implemented Yet", "Editor", JOptionPane.INFORMATION_MESSAGE);
+                FrameEditor editor = new FrameEditor(gui);
+                editor.setVisible(true);
             }
         });
 
@@ -58,11 +59,14 @@ public class FramePreview extends JFrame {
         });
 
         JPanel pnlVariables = new JPanel();
-        contentPane.add(pnlVariables, BorderLayout.CENTER);
         pnlVariables.setLayout(new BoxLayout(pnlVariables, BoxLayout.Y_AXIS));
+        contentPane.add(pnlVariables, BorderLayout.CENTER);
+
+        JPanel pnlTextField = new JPanel();
+        pnlVariables.add(pnlTextField);
 
         textField = new JTextField();
-        textField.setColumns(50);
+        textField.setColumns(30);
         textField.setToolTipText("message to display");
         textField.setText("Random Text");
         textField.getDocument().addDocumentListener(new DocumentListener() {
@@ -81,7 +85,7 @@ public class FramePreview extends JFrame {
                 gui.debugText = textField.getText();
             }
         });
-        pnlVariables.add(textField);
+        pnlTextField.add(textField);
 
         final JScrollBar scrollBar = new JScrollBar();
         scrollBar.setValue(20);

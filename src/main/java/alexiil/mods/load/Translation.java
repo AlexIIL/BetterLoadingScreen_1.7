@@ -1,17 +1,12 @@
 package alexiil.mods.load;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import net.minecraft.client.resources.I18n;
 
 @Deprecated
 public class Translation {
@@ -24,10 +19,9 @@ public class Translation {
     }
 
     public static String translate(String toTranslate, String failure) {
-        return I18n.format(toTranslate);
-        // if (currentTranslation != null)
-        // return currentTranslation.translateInternal(toTranslate, failure);
-        // return failure;
+        // return I18n.format(toTranslate);
+        if (currentTranslation != null) return currentTranslation.translateInternal(toTranslate, failure);
+        return failure;
     }
 
     public static void addTranslations(File modLocation) {
@@ -40,13 +34,10 @@ public class Translation {
             File langFolder = new File(modLocation, lookingFor);
             System.out.println(langFolder.getAbsolutePath() + ", " + langFolder.isDirectory());
             for (File f : langFolder.listFiles()) {
-                if (f != null)
-                    System.out.println(f.getAbsolutePath());
-                else
-                    System.out.println("null");
+                if (f != null) System.out.println(f.getAbsolutePath());
+                else System.out.println("null");
             }
-        }
-        else if (modLocation.isFile()) {
+        } else if (modLocation.isFile()) {
             JarFile modJar = null;
             try {
                 modJar = new JarFile(modLocation);
@@ -58,22 +49,17 @@ public class Translation {
                         try {
                             addTranslation(name.replace(lookingFor, "").replace(".lang", ""),
                                     new BufferedReader(new InputStreamReader(modJar.getInputStream(je), "UTF-8")));
-                        }
-                        catch (IOException e) {
+                        } catch (IOException e) {
                             System.out.println("Had trouble opening " + name);
                         }
                     }
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 System.out.println("Could not open file");
-            }
-            finally {
-                if (modJar != null)
-                    try {
-                        modJar.close();
-                    }
-                    catch (IOException e) {}
+            } finally {
+                if (modJar != null) try {
+                    modJar.close();
+                } catch (IOException e) {}
             }
         }
 
@@ -90,39 +76,32 @@ public class Translation {
                     language = parts[1];
                 }
             }
+        } catch (IOException ignored) {} finally {
+            if (reader != null) try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        catch (IOException ignored) {}
-        finally {
-            if (reader != null)
-                try {
-                    reader.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
-        if (translators.containsKey(language))
-            currentTranslation = translators.get(language);
+        if (translators.containsKey(language)) currentTranslation = translators.get(language);
         else if (translators.containsKey("en_US")) {
             System.out.println("Failed to load " + language + ", loading en_US insted");
             currentTranslation = translators.get("en_US");
-        }
-        else if (!translators.isEmpty()) {
+        } else if (!translators.isEmpty()) {
             String name = translators.keySet().iterator().next();
             System.out.println("Failed to load " + language + ", AND FAILED TO LOAD en_US! One available however is " + name
-                    + ", using that and keeping quiet...");
+                + ", using that and keeping quiet...");
             currentTranslation = translators.values().iterator().next();
-        }
-        else {
+        } else {
             System.out.println("Failed to load ANY languages! All strings fail now!");
         }
     }
 
     public static boolean addTranslation(String locale, BufferedReader from) {
         try {
+            System.out.println("Adding locale " + locale);
             translators.put(locale, new Translation(from));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("Failed to add" + locale);
         }
         return true;
@@ -136,22 +115,18 @@ public class Translation {
                 String[] splitter = line.split("=");
                 if (splitter.length != 2) {
                     System.out.println("Found an invalid line (" + line + ")");
-                }
-                else {
+                } else {
                     translations.put(splitter[0], splitter[1]);
-                    System.out.println("Found a translation " + splitter);
+                    System.out.println("Found a translation " + Arrays.toString(splitter));
                 }
             }
-        }
-        finally {
-            if (reader != null)
-                reader.close();
+        } finally {
+            if (reader != null) reader.close();
         }
     }
 
     private String translateInternal(String toTranslate, String failure) {
-        if (translations.containsKey(toTranslate))
-            return translations.get(toTranslate);
+        if (translations.containsKey(toTranslate)) return translations.get(toTranslate);
         return failure;
     }
 }
