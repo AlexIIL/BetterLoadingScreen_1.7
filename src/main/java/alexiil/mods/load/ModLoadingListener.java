@@ -90,7 +90,7 @@ public class ModLoadingListener {
         }
 
         public float getProgress() {
-            float values = 100 / (float) State.values().length;
+            float values = 100 / (float) (State.values().length-1);
             float part = state.ordinal() * values;
             float size = listeners.size();
             float percent = values * index / size;
