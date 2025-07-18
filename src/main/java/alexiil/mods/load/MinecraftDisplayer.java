@@ -1,7 +1,13 @@
 package alexiil.mods.load;
 
 import java.awt.SplashScreen;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -10,14 +16,6 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
-import alexiil.mods.load.ProgressDisplayer.IDisplayer;
-import alexiil.mods.load.json.Area;
-import alexiil.mods.load.json.EPosition;
-import alexiil.mods.load.json.EType;
-import alexiil.mods.load.json.ImageRender;
-import alexiil.mods.load.json.JsonConfig;
-import cpw.mods.fml.client.FMLFileResourcePack;
-import cpw.mods.fml.client.FMLFolderResourcePack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -27,10 +25,22 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.FolderResourcePack;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.util.ResourceLocation;
+
 import net.minecraftforge.common.config.Configuration;
+
+import alexiil.mods.load.ProgressDisplayer.IDisplayer;
+import alexiil.mods.load.json.Area;
+import alexiil.mods.load.json.EPosition;
+import alexiil.mods.load.json.EType;
+import alexiil.mods.load.json.ImageRender;
+import alexiil.mods.load.json.JsonConfig;
+
+import cpw.mods.fml.client.FMLFileResourcePack;
+import cpw.mods.fml.client.FMLFolderResourcePack;
 
 public class MinecraftDisplayer implements IDisplayer {
     private static String sound;
@@ -45,7 +55,7 @@ public class MinecraftDisplayer implements IDisplayer {
     private ScaledResolution resolution = null;
     private Minecraft mc = null;
     private boolean callAgain = false;
-    private IResourcePack myPack;
+    private IResourcePack myPack, folderPack;
     private float clearRed = 1, clearGreen = 1, clearBlue = 1;
 
     public static void playFinishedSound() {
@@ -108,20 +118,70 @@ public class MinecraftDisplayer implements IDisplayer {
                 + "\n - If you use the Russian mod \"Client Fixer\" then change this to \"textures/font/ascii_fat.png\"" + "\n";
         fontTexture = cfg.getString("font", "general", defaultFontTexture, comment4);
 
+        // Open the special config directory
+        File configDir = new File("./config/BetterLoadingScreen");
+        if (!configDir.exists()) {
+            configDir.mkdirs();
+        }
+
         // Add ourselves as a resource pack
         if (!preview) {
             if (!ProgressDisplayer.coreModLocation.isDirectory())
                 myPack = new FMLFileResourcePack(ProgressDisplayer.modContainer);
             else
                 myPack = new FMLFolderResourcePack(ProgressDisplayer.modContainer);
-            getOnlyList().add(myPack);
+            List<IResourcePack> packList = getOnlyList();
+            packList.add(myPack);
+
+            File packFolder = new File(configDir, "resources");
+
+            if (!packFolder.exists()) {
+                packFolder.mkdirs();
+            }
+
+            writePackMeta(new File(packFolder, "pack.mcmeta"));
+            File sampleImage = new File(new File(new File(packFolder, "assets"), "betterloadingscreen"), "textures");
+            sampleImage.mkdirs();
+            sampleImage = new File(sampleImage, "progressBars2.png");
+            if (!sampleImage.exists()) {
+                InputStream input = null;
+                OutputStream output = null;
+                try {
+                    input = Lib.class.getResourceAsStream("/assets/betterloadingscreen/textures/progressBars.png");
+                    if (input != null) {
+                        output = new FileOutputStream(sampleImage);
+                        byte[] buffer = new byte[4096];
+                        int read;
+                        while ((read = input.read(buffer)) > 0) {
+                            output.write(buffer, 0, read);
+                        }
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (input != null) {
+                            input.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        if (output != null) {
+                            output.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            packList.add(folderPack = new FolderResourcePack(packFolder));
 
             mc.refreshResources();
         }
-        // Open the special config directory
-        File configDir = new File("./config/BetterLoadingScreen");
-        if (!configDir.exists())
-            configDir.mkdirs();
 
         // Image Config
         images = new ImageRender[6];
@@ -171,6 +231,28 @@ public class MinecraftDisplayer implements IDisplayer {
         definePreset(configDir, "preset two", presetData);
 
         // Preset three uses... idk, TODO: Preset 3 etc
+    }
+
+    private static void writePackMeta(File file) {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(file));
+            writer.write(
+                "{\n'pack': {\n\t'description': 'Better Loading Screen folder pack',"
+                    + "\n\t'pack_format': 1\n}\n}\n".replace('\'', '"')
+            );
+            writer.close();
+        } catch (IOException io) {
+            io.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void definePreset(File configDir, String name, ImageRender... images) {
@@ -340,6 +422,8 @@ public class MinecraftDisplayer implements IDisplayer {
 
     @Override
     public void close() {
-        getOnlyList().remove(myPack);
+        List<IResourcePack> packs = getOnlyList();
+        packs.remove(myPack);
+        packs.remove(folderPack);
     }
 }
