@@ -4,6 +4,9 @@ import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+
+import alexiil.mods.load.BetterLoadingScreen;
+
 import cpw.mods.fml.client.IModGuiFactory;
 
 public class ConfigGuiFactory implements IModGuiFactory {
@@ -12,7 +15,11 @@ public class ConfigGuiFactory implements IModGuiFactory {
 
     @Override
     public Class<? extends GuiScreen> mainConfigGuiClass() {
-        return BaseConfig.class;
+        if (BetterLoadingScreen.couldGetVersionHistory()) {
+            return BaseConfig.class;
+        } else {
+            return ActualConfig.class;
+        }
     }
 
     @Override

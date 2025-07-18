@@ -29,8 +29,8 @@ import alexiil.mods.load.json.ImageRender;
 @SuppressWarnings("serial")
 public class FrameEditor extends JFrame {
     private JPanel contentPane, settingsPanel;
-    private JList<String> renderList;
-    private DefaultListModel<String> renderListInternal;
+    private JList renderList;
+    private DefaultListModel renderListInternal;
 
     private final GuiPreview gui;
     private ImageRender[] renders;
@@ -46,10 +46,10 @@ public class FrameEditor extends JFrame {
         contentPane.setLayout(new BorderLayout(0, 0));
         setContentPane(contentPane);
 
-        renderList = new JList<String>();
+        renderList = new JList();
         renderList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         renderList.setLayoutOrientation(JList.VERTICAL);
-        renderList.setModel(renderListInternal = new DefaultListModel<String>());
+        renderList.setModel(renderListInternal = new DefaultListModel());
 
         renderList.addListSelectionListener(new ListSelectionListener() {
             @Override                                      // TODO (JDK8): Convert to lambda
@@ -103,7 +103,7 @@ public class FrameEditor extends JFrame {
         comment.setText(render.comment);
         panel.add(comment);
 
-        JComboBox<EType> type = new JComboBox<EType>(EType.values());
+        JComboBox type = new JComboBox(EType.values());
         type.setSelectedItem(render.type);
         panel.add(type);
 

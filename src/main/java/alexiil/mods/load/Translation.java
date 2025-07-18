@@ -1,6 +1,7 @@
 package alexiil.mods.load;
 
 import java.io.*;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -27,15 +28,28 @@ public class Translation {
     public static void addTranslations(File modLocation) {
         String lookingFor = "assets/betterloadingscreen/lang/";
         if (modLocation == null) {
-            System.out.println("Could not find the translation file!");
-            return;
+            URL resource = Translation.class.getResource("/");
+            if ("file".equals(resource.getProtocol())) {
+                modLocation = new File(resource.getPath());
+            } else {
+                System.out.println("Could not find the translation file!");
+                return;
+            }
         }
         if (modLocation.isDirectory()) {
             File langFolder = new File(modLocation, lookingFor);
             System.out.println(langFolder.getAbsolutePath() + ", " + langFolder.isDirectory());
             for (File f : langFolder.listFiles()) {
-                if (f != null) System.out.println(f.getAbsolutePath());
-                else System.out.println("null");
+                if (f != null && f.isFile() && f.getName().endsWith(".lang") && !f.isHidden()) {
+                    try {
+                        addTranslation(f.getName().replace(".lang", ""), new BufferedReader(new FileReader(f)));
+                    } catch (IOException e) {
+                        System.out.println("Had trouble opening " + f);
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("Skipping " + f);
+                }
             }
         } else if (modLocation.isFile()) {
             JarFile modJar = null;

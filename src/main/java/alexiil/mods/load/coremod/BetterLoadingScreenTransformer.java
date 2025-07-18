@@ -51,7 +51,7 @@ public class BetterLoadingScreenTransformer implements IClassTransformer, Opcode
             }
         }
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(0);
         classNode.accept(cw);
         return cw.toByteArray();
     }
@@ -114,13 +114,17 @@ public class BetterLoadingScreenTransformer implements IClassTransformer, Opcode
             }
         }
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(0);
         classNode.accept(cw);
         System.out.println("Transformed Minecraft");
         return cw.toByteArray();
     }
 
     private byte[] transformResourceLoader(byte[] before) {
+        if (before == null) {
+            return null;
+        }
+
         ClassNode classNode = new ClassNode();
         ClassReader reader = new ClassReader(before);
         reader.accept(classNode, 0);
@@ -136,7 +140,7 @@ public class BetterLoadingScreenTransformer implements IClassTransformer, Opcode
                 f.visibleAnnotations.remove(0);// Remove @Mod.Instance("ResourceLoader")
         }
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(0);
         classNode.accept(cw);
         byte[] arr = cw.toByteArray();
         System.out.println("Transformed ResourceLoader!");

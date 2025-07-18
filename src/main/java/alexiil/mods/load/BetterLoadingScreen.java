@@ -34,6 +34,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 @Mod(modid = Lib.Mod.ID, guiFactory = "alexiil.mods.load.gui.ConfigGuiFactory", acceptableRemoteVersions = "*")
 public class BetterLoadingScreen {
+
     @Instance(Lib.Mod.ID)
     public static BetterLoadingScreen instance;
 
@@ -107,9 +108,18 @@ public class BetterLoadingScreen {
         return Lib.Mod.buildType();
     }
 
+    private static final String HISTORY_URL_BASE = null;
+
+    public static boolean couldGetVersionHistory() {
+        return HISTORY_URL_BASE != null;
+    }
+
     public static void initSiteVersioning() {
-        String droneSite = "https://drone.io/github.com/AlexIIL/BetterLoadingScreen_1.7/files/VersionInfo/build/libs/version/";
-        contributors = Collections.unmodifiableList(SiteRequester.getContributors(droneSite + "contributors.json"));
+        String urlBase = HISTORY_URL_BASE;
+        if (urlBase == null) {
+            return;
+        }
+        contributors = Collections.unmodifiableList(SiteRequester.getContributors(urlBase + "contributors.json"));
         if (contributors.size() == 0)
             meta.authorList.add("Could not connect to GitHub to fetch the rest...");
         for (GitHubUser c : contributors) {
@@ -118,7 +128,7 @@ public class BetterLoadingScreen {
             meta.authorList.add(c.login);
         }
 
-        commits = SiteRequester.getCommits(droneSite + "commits.json");
+        commits = SiteRequester.getCommits(urlBase + "commits.json");
         Collections.sort(commits, new Comparator<Commit>() {
             @Override
             public int compare(Commit c0, Commit c1) {
@@ -135,7 +145,7 @@ public class BetterLoadingScreen {
             System.out.println("Commit Hash : \"" + getCommitHash() + "\"");
         }
 
-        releases = Collections.unmodifiableList(SiteRequester.getReleases(droneSite + "releases.json"));
+        releases = Collections.unmodifiableList(SiteRequester.getReleases(urlBase + "releases.json"));
     }
 
     public static List<GitHubUser> getContributors() {
